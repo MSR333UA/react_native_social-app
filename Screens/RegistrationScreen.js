@@ -65,14 +65,27 @@ export const RegistrationScreen = () => {
                   backgroundColor: "#F6F6F6",
                 }}
               >
-                <TouchableOpacity style={styles.addCross}>
+                <TouchableOpacity>
                   {photo ? (
                     <>
-                      <Image source={{ uri: photo }} style={styles.avatar} />
-                      <SimpleLineIcons name="close" size={25} color="#BDBDBD" />
+                      <Image
+                        // style={{ width: 120, height: 120, borderRadius: 16 }}
+                        source={require("../assets/images/avatar.png")}
+                      />
+                      <SimpleLineIcons
+                        name="close"
+                        size={25}
+                        color="#BDBDBD"
+                        style={styles.deleteCross}
+                      />
                     </>
                   ) : (
-                    <AntDesign name="pluscircleo" color="#FF6C00" size={25} />
+                    <AntDesign
+                      name="pluscircleo"
+                      color="#FF6C00"
+                      size={25}
+                      style={styles.addCross}
+                    />
                   )}
                 </TouchableOpacity>
               </View>
@@ -172,14 +185,20 @@ const styles = StyleSheet.create({
   },
   addCross: {
     position: "absolute",
-    bottom: 14,
+    top: 81,
     right: -12.5,
   },
-
+  deleteCross: {
+    position: "absolute",
+    top: 81,
+    right: -12.5,
+    backgroundColor: "#fff",
+    borderRadius: 50,
+    height: 24,
+  },
   bgForm: {
-    // position: "absolute",
     width: "100%",
-    // height: "100%",
+
     left: 0,
     paddingHorizontal: 16,
     backgroundColor: "#FFFFFF",
