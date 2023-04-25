@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons, SimpleLineIcons } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -27,6 +27,7 @@ export const RegistrationScreen = () => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [state, setState] = useState(initialState);
   const [showPassword, setShowPassword] = useState(false);
+  const [photo, setPhoto] = useState(null);
 
   const handleKeyboardHide = () => {
     setIsShowKeyboard(false);
@@ -58,15 +59,32 @@ export const RegistrationScreen = () => {
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
-              <Image style={styles.avatar}></Image>
+              <View
+                style={{
+                  ...styles.avatar,
+                  backgroundColor: "#F6F6F6",
+                }}
+              >
+                <TouchableOpacity style={styles.addCross}>
+                  {photo ? (
+                    <>
+                      <Image source={{ uri: photo }} style={styles.avatar} />
+                      <SimpleLineIcons name="close" size={25} color="#BDBDBD" />
+                    </>
+                  ) : (
+                    <AntDesign name="pluscircleo" color="#FF6C00" size={25} />
+                  )}
+                </TouchableOpacity>
+              </View>
 
               <Text style={styles.regText}>Registration</Text>
               <TextInput
                 style={[
                   styles.inputText,
-                  isShowKeyboard === "login" && styles.InputFocus,
+                  isShowKeyboard && state.login && styles.InputFocus,
                 ]}
                 onFocus={() => setIsShowKeyboard(true)}
+                onBlur={() => setIsShowKeyboard(false)}
                 placeholder="Login"
                 value={state.login}
                 onChangeText={(value) =>
@@ -131,6 +149,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     justifyContent: "flex-end",
   },
+
   bgImage: {
     flex: 1,
     resizeMode: "cover",
@@ -147,6 +166,16 @@ const styles = StyleSheet.create({
     backgroundColor: "#F6F6F6",
     borderRadius: 16,
   },
+  avatarIcon: {
+    position: "absolute",
+    right: halfWindowsWidth - 90,
+  },
+  addCross: {
+    position: "absolute",
+    bottom: 14,
+    right: -12.5,
+  },
+
   bgForm: {
     // position: "absolute",
     width: "100%",
