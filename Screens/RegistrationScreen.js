@@ -28,14 +28,18 @@ export const RegistrationScreen = () => {
   const [state, setState] = useState(initialState);
   const [showPassword, setShowPassword] = useState(false);
   const [photo, setPhoto] = useState(null);
-
+  // const [inputFocus, setInputFocus] = useState(null);
   const handleKeyboardHide = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
-    // console.log(state);
-    // setState(initialState);
   };
 
+  const handleSubmit = () => {
+    setIsShowKeyboard(false);
+    Keyboard.dismiss();
+    console.log(state);
+    setState(initialState);
+  };
   return (
     <TouchableWithoutFeedback onPress={handleKeyboardHide}>
       <View style={styles.container}>
@@ -68,10 +72,7 @@ export const RegistrationScreen = () => {
                 <TouchableOpacity>
                   {photo ? (
                     <>
-                      <Image
-                        // style={{ width: 120, height: 120, borderRadius: 16 }}
-                        source={require("../assets/images/avatar.png")}
-                      />
+                      <Image source={require("../assets/images/avatar.png")} />
                       <SimpleLineIcons
                         name="close"
                         size={25}
@@ -94,9 +95,9 @@ export const RegistrationScreen = () => {
               <TextInput
                 style={[
                   styles.inputText,
-                  isShowKeyboard && state.login && styles.InputFocus,
+                  isShowKeyboard === "login" && styles.InputFocus,
                 ]}
-                onFocus={() => setIsShowKeyboard(true)}
+                onFocus={() => setIsShowKeyboard("login")}
                 onBlur={() => setIsShowKeyboard(false)}
                 placeholder="Login"
                 value={state.login}
@@ -105,8 +106,12 @@ export const RegistrationScreen = () => {
                 }
               ></TextInput>
               <TextInput
-                style={[styles.inputText, isShowKeyboard && styles.InputFocus]}
-                onFocus={() => setIsShowKeyboard(true)}
+                style={[
+                  styles.inputText,
+                  isShowKeyboard === "email" && styles.InputFocus,
+                ]}
+                onFocus={() => setIsShowKeyboard("email")}
+                onBlur={() => setIsShowKeyboard(false)}
                 placeholder="Email address"
                 value={state.email}
                 onChangeText={(value) =>
@@ -116,13 +121,15 @@ export const RegistrationScreen = () => {
               <View
                 style={[
                   styles.passwordContainer,
-                  isShowKeyboard && styles.InputFocus,
+                  isShowKeyboard === "password" && styles.InputFocus,
                 ]}
               >
                 <TextInput
                   style={styles.passwordInput}
                   secureTextEntry={!showPassword}
-                  onFocus={() => setIsShowKeyboard(true)}
+                  onFocus={() => setIsShowKeyboard("password")}
+                  onBlur={() => setIsShowKeyboard(false)}
+                  autoComplete="email"
                   placeholder="Password"
                   value={state.password}
                   onChangeText={(value) =>
@@ -139,16 +146,21 @@ export const RegistrationScreen = () => {
                 </TouchableOpacity>
               </View>
             </KeyboardAvoidingView>
-            <TouchableOpacity
-              activeOpacity={0.5}
-              style={styles.buttonContainer}
-              onPress={handleKeyboardHide}
-            >
-              <Text style={styles.buttonText}>Register</Text>
-            </TouchableOpacity>
-            <Text style={styles.rulesText}>
-              Already have an account? Sign in
-            </Text>
+
+            {!isShowKeyboard && (
+              <>
+                <TouchableOpacity
+                  activeOpacity={0.5}
+                  style={styles.buttonContainer}
+                  onPress={handleSubmit}
+                >
+                  <Text style={styles.buttonText}>Sign Up</Text>
+                </TouchableOpacity>
+                <Text style={styles.rulesText}>
+                  Already have an account? Sign in
+                </Text>
+              </>
+            )}
           </View>
         </ImageBackground>
       </View>
@@ -214,7 +226,6 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     alignItems: "center",
     justifyContent: "center",
-    // marginVertical: 12,
   },
   buttonText: {
     fontSize: 16,
@@ -223,13 +234,6 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
   },
   regText: {
-    // position: "absolute",
-    // width: 184,
-    // height: 35,
-    // left: "50%",
-    // marginLeft: -92, // to center the element horizontally
-    // top: 0,
-
     marginTop: 92,
     marginBottom: 32,
 
@@ -258,20 +262,14 @@ const styles = StyleSheet.create({
     height: 50,
     marginBottom: 16,
 
-    // top: calc(50% - 19px/2 + 0.5px);
-
     fontFamily: "RobotoRegular",
     fontStyle: "normal",
-    // fontWeight: "400",
     fontSize: 16,
     lineHeight: 19,
-    // position: "absolute",
-    // left: 16,
-    // right: 16,
-    // top: 423,
   },
   InputFocus: {
     borderColor: "#FF6C00",
+    backgroundColor: "#FFFFFF",
   },
   passwordContainer: {
     flexDirection: "row",
@@ -305,7 +303,6 @@ const styles = StyleSheet.create({
   },
   rulesText: {
     fontFamily: "RobotoRegular",
-
     fontSize: 16,
     lineHeight: 19,
     textAlign: "center",
