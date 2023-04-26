@@ -51,9 +51,9 @@ export const RegistrationScreen = () => {
             style={{
               ...styles.bgForm,
               ...Platform.select({
-                android: {
-                  height: isShowKeyboard ? 390 : 550,
-                },
+                // android: {
+                //   height: isShowKeyboard ? 390 : 550,
+                // },
                 ios: {
                   height: isShowKeyboard ? 670 : 550,
                 },
@@ -91,7 +91,7 @@ export const RegistrationScreen = () => {
                 </TouchableOpacity>
               </View>
 
-              <Text style={styles.regText}>Registration</Text>
+              <Text style={styles.title}>Registration</Text>
               <TextInput
                 style={[
                   styles.inputText,
@@ -113,6 +113,7 @@ export const RegistrationScreen = () => {
                 onFocus={() => setIsShowKeyboard("email")}
                 onBlur={() => setIsShowKeyboard(false)}
                 placeholder="Email address"
+                autoComplete="email"
                 value={state.email}
                 onChangeText={(value) =>
                   setState((prevState) => ({ ...prevState, email: value }))
@@ -129,7 +130,6 @@ export const RegistrationScreen = () => {
                   secureTextEntry={!showPassword}
                   onFocus={() => setIsShowKeyboard("password")}
                   onBlur={() => setIsShowKeyboard(false)}
-                  autoComplete="email"
                   placeholder="Password"
                   value={state.password}
                   onChangeText={(value) =>
@@ -137,6 +137,7 @@ export const RegistrationScreen = () => {
                   }
                 />
                 <TouchableOpacity
+                  activeOpacity={0.5}
                   onPress={() => setShowPassword(!showPassword)}
                 >
                   <Ionicons
@@ -233,7 +234,7 @@ const styles = StyleSheet.create({
     fontFamily: "RobotoRegular",
     color: "#FFFFFF",
   },
-  regText: {
+  title: {
     marginTop: 92,
     marginBottom: 32,
 
@@ -248,9 +249,6 @@ const styles = StyleSheet.create({
     color: "#212121",
   },
 
-  form: {
-    marginHorizontal: 16,
-  },
   inputText: {
     paddingLeft: 16,
     backgroundColor: "#F6F6F6",
