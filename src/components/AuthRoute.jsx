@@ -11,12 +11,12 @@ export const AuthRoute = () => {
         name="Register"
         component={RegistrationScreen}
         options={{ headerShown: false }} // Робить ітерфейс чистішим та сфокусованішим та заберає заголовок
-      ></Stack.Screen>
+      />
       <Stack.Screen
         name="LoginScreen"
         component={LoginScreen}
         options={{ headerShown: false }}
-      ></Stack.Screen>
+      />
     </Stack.Navigator>
   );
 };

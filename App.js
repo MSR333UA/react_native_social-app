@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { NavigationContainer } from "@react-navigation/native";
 import * as SplashScreen from "expo-splash-screen";
-import { loadFonts } from "./Fonts/Fonts";
-import { Main } from "./components/Main";
+import { loadFonts } from "./src/Fonts/Fonts";
+import { Main } from "./src/components/Main";
 
 SplashScreen.preventAutoHideAsync();
 
