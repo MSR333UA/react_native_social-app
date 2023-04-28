@@ -1,30 +1,38 @@
-import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import React, { useState } from "react";
+import { AntDesign, Ionicons, SimpleLineIcons } from "@expo/vector-icons";
 import {
-  Dimensions,
-  ImageBackground,
-  Keyboard,
-  KeyboardAvoidingView,
-  StyleSheet,
+  View,
   Text,
   TextInput,
+  StyleSheet,
   TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
   Platform,
+  KeyboardAvoidingView,
+  Keyboard,
+  TouchableWithoutFeedback,
+  ImageBackground,
+  Image,
+  Dimensions,
 } from "react-native";
 
-// const halfWindowsWidth = Dimensions.get("window").width / 2;
+const halfWindowsWidth = Dimensions.get("window").width / 2;
 
 const initialState = {
+  login: "",
   email: "",
   password: "",
 };
 
-export const LoginScreen = () => {
+export const RegistrationScreen = () => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [state, setState] = useState(initialState);
   const [showPassword, setShowPassword] = useState(false);
+  const [photo, setPhoto] = useState(null);
+
+  const handleKeyboardHide = () => {
+    setIsShowKeyboard(false);
+    Keyboard.dismiss();
+  };
 
   const handleSubmit = () => {
     setIsShowKeyboard(false);
@@ -32,27 +40,22 @@ export const LoginScreen = () => {
     console.log(state);
     setState(initialState);
   };
-
-  const handleKeyboardHide = () => {
-    setIsShowKeyboard(false);
-    Keyboard.dismiss();
-  };
   return (
     <TouchableWithoutFeedback onPress={handleKeyboardHide}>
       <View style={styles.container}>
         <ImageBackground
           style={styles.bgImage}
-          source={require("../../assets/images/imgBg.png")}
+          source={require("../../../assets/images/imgBg.png")}
         >
           <View
             style={{
               ...styles.bgForm,
               ...Platform.select({
                 // android: {
-                //   height: isShowKeyboard ? 270 : 490,
+                //   height: isShowKeyboard ? 390 : 550,
                 // },
                 ios: {
-                  height: isShowKeyboard ? 550 : 490,
+                  height: isShowKeyboard ? 670 : 550,
                 },
               }),
             }}
@@ -60,7 +63,50 @@ export const LoginScreen = () => {
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
-              <Text style={styles.title}>Login</Text>
+              <View
+                style={{
+                  ...styles.avatar,
+                  backgroundColor: "#F6F6F6",
+                }}
+              >
+                <TouchableOpacity>
+                  {photo ? (
+                    <>
+                      <Image
+                        source={require("../../../assets/images/avatar.png")}
+                      />
+                      <SimpleLineIcons
+                        name="close"
+                        size={25}
+                        color="#BDBDBD"
+                        style={styles.deleteCross}
+                      />
+                    </>
+                  ) : (
+                    <AntDesign
+                      name="pluscircleo"
+                      color="#FF6C00"
+                      size={25}
+                      style={styles.addCross}
+                    />
+                  )}
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.title}>Registration</Text>
+              <TextInput
+                style={[
+                  styles.inputText,
+                  isShowKeyboard === "login" && styles.InputFocus,
+                ]}
+                onFocus={() => setIsShowKeyboard("login")}
+                onBlur={() => setIsShowKeyboard(false)}
+                placeholder="Login"
+                value={state.login}
+                onChangeText={(value) =>
+                  setState((prevState) => ({ ...prevState, login: value }))
+                }
+              ></TextInput>
               <TextInput
                 style={[
                   styles.inputText,
@@ -69,11 +115,12 @@ export const LoginScreen = () => {
                 onFocus={() => setIsShowKeyboard("email")}
                 onBlur={() => setIsShowKeyboard(false)}
                 placeholder="Email address"
+                autoComplete="email"
                 value={state.email}
                 onChangeText={(value) =>
                   setState((prevState) => ({ ...prevState, email: value }))
                 }
-              />
+              ></TextInput>
               <View
                 style={[
                   styles.passwordContainer,
@@ -110,10 +157,10 @@ export const LoginScreen = () => {
                   style={styles.buttonContainer}
                   onPress={handleSubmit}
                 >
-                  <Text style={styles.buttonText}>Sing In</Text>
+                  <Text style={styles.buttonText}>Sign Up</Text>
                 </TouchableOpacity>
                 <Text style={styles.rulesText}>
-                  Don't have an account? Sing Up
+                  Already have an account? Sign in
                 </Text>
               </>
             )}
@@ -138,6 +185,32 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 
+  avatar: {
+    position: "absolute",
+    width: 120,
+    height: 120,
+    top: -60,
+    left: halfWindowsWidth - 75,
+    backgroundColor: "#F6F6F6",
+    borderRadius: 16,
+  },
+  avatarIcon: {
+    position: "absolute",
+    right: halfWindowsWidth - 90,
+  },
+  addCross: {
+    position: "absolute",
+    top: 81,
+    right: -12.5,
+  },
+  deleteCross: {
+    position: "absolute",
+    top: 81,
+    right: -12.5,
+    backgroundColor: "#fff",
+    borderRadius: 50,
+    height: 24,
+  },
   bgForm: {
     width: "100%",
 
@@ -147,8 +220,24 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 25,
     borderTopRightRadius: 25,
   },
+  buttonContainer: {
+    height: 51,
+    marginTop: 27,
+    marginBottom: 16,
+    marginHorizontal: 32,
+    backgroundColor: "#FF6C00",
+    borderRadius: 100,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  buttonText: {
+    fontSize: 16,
+    lineHeight: 19,
+    fontFamily: "RobotoRegular",
+    color: "#FFFFFF",
+  },
   title: {
-    marginTop: 32,
+    marginTop: 92,
     marginBottom: 32,
 
     fontFamily: "RobotoMedium",
@@ -158,6 +247,7 @@ const styles = StyleSheet.create({
     lineHeight: 35,
     textAlign: "center",
     letterSpacing: 0.01,
+
     color: "#212121",
   },
 
@@ -176,6 +266,10 @@ const styles = StyleSheet.create({
     fontStyle: "normal",
     fontSize: 16,
     lineHeight: 19,
+  },
+  InputFocus: {
+    borderColor: "#FF6C00",
+    backgroundColor: "#FFFFFF",
   },
   passwordContainer: {
     flexDirection: "row",
@@ -200,26 +294,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     height: 50,
   },
-  InputFocus: {
-    borderColor: "#FF6C00",
-    backgroundColor: "#FFFFFF",
-  },
-  buttonContainer: {
-    height: 51,
-    marginTop: 27,
-    marginBottom: 16,
-    marginHorizontal: 32,
-    backgroundColor: "#FF6C00",
-    borderRadius: 100,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  buttonText: {
-    fontSize: 16,
-    lineHeight: 19,
-    fontFamily: "RobotoRegular",
-    color: "#FFFFFF",
-  },
+
   eyeButton: {
     padding: 5,
     paddingRight: 15,
@@ -232,6 +307,6 @@ const styles = StyleSheet.create({
     lineHeight: 19,
     textAlign: "center",
     color: "#1B4371",
-    marginBottom: 144,
+    marginBottom: 78,
   },
 });
