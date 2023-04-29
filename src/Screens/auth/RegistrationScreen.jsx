@@ -13,7 +13,10 @@ import {
   ImageBackground,
   Image,
   Dimensions,
+  Button,
 } from "react-native";
+import { LoginScreen } from "./LoginScreen";
+import { TextBtn } from "../../components/TextBtn";
 
 const halfWindowsWidth = Dimensions.get("window").width / 2;
 
@@ -23,12 +26,12 @@ const initialState = {
   password: "",
 };
 
-export const RegistrationScreen = () => {
+export const RegistrationScreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [state, setState] = useState(initialState);
   const [showPassword, setShowPassword] = useState(false);
   const [photo, setPhoto] = useState(null);
-
+  // console.log(navigation);
   const handleKeyboardHide = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
@@ -39,6 +42,7 @@ export const RegistrationScreen = () => {
     Keyboard.dismiss();
     console.log(state);
     setState(initialState);
+    navigation.navigate("Home");
   };
   return (
     <TouchableWithoutFeedback onPress={handleKeyboardHide}>
@@ -159,9 +163,15 @@ export const RegistrationScreen = () => {
                 >
                   <Text style={styles.buttonText}>Sign Up</Text>
                 </TouchableOpacity>
-                <Text style={styles.rulesText}>
-                  Already have an account? Sign in
-                </Text>
+                <TextBtn
+                  handlePress={() => navigation.navigate("Login")}
+                  text={"Already have an account?"}
+                  textTab={"Sing In"}
+                  position={{
+                    alignItems: "center",
+                    marginBottom: 78,
+                  }}
+                />
               </>
             )}
           </View>
@@ -300,13 +310,5 @@ const styles = StyleSheet.create({
     paddingRight: 15,
     fontSize: 24,
     color: "#1B4371",
-  },
-  rulesText: {
-    fontFamily: "RobotoRegular",
-    fontSize: 16,
-    lineHeight: 19,
-    textAlign: "center",
-    color: "#1B4371",
-    marginBottom: 78,
   },
 });

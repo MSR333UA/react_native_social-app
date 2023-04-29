@@ -13,6 +13,7 @@ import {
   View,
   Platform,
 } from "react-native";
+import { TextBtn } from "../../components/TextBtn";
 
 // const halfWindowsWidth = Dimensions.get("window").width / 2;
 
@@ -21,7 +22,7 @@ const initialState = {
   password: "",
 };
 
-export const LoginScreen = () => {
+export const LoginScreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [state, setState] = useState(initialState);
   const [showPassword, setShowPassword] = useState(false);
@@ -31,6 +32,7 @@ export const LoginScreen = () => {
     Keyboard.dismiss();
     console.log(state);
     setState(initialState);
+    navigation.navigate("Home");
   };
 
   const handleKeyboardHide = () => {
@@ -112,9 +114,15 @@ export const LoginScreen = () => {
                 >
                   <Text style={styles.buttonText}>Sing In</Text>
                 </TouchableOpacity>
-                <Text style={styles.rulesText}>
-                  Don't have an account? Sing Up
-                </Text>
+                <TextBtn
+                  handlePress={() => navigation.navigate("Register")}
+                  text={"Don't have an account?"}
+                  textTab={"Sing Up"}
+                  position={{
+                    alignItems: "center",
+                    marginBottom: 144,
+                  }}
+                />
               </>
             )}
           </View>
