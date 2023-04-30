@@ -11,16 +11,16 @@ export const DefaultScreen = ({ navigation }) => {
     <View style={{ flex: 1 }}>
       <Header>
         <Text style={styles.title}>Publications</Text>
-        <MaterialIcons
+        {/* <MaterialIcons
           style={{ position: "absolute", top: 55, right: 16 }}
           name="logout"
           size={24}
           color="#BDBDBD"
-        />
-        {/* <LogoutBtn
+        /> */}
+        <LogoutBtn
           addStyles={{ position: "absolute", top: 55, right: 16 }}
           onPress={Keyboard.dismiss()}
-        /> */}
+        />
       </Header>
       <Container addStyles={{ flex: 1 }}>
         <UserInfo />
