@@ -7,6 +7,8 @@ import {
   TouchableWithoutFeedback,
   Platform,
   TextInput,
+  Keyboard,
+  ActivityIndicator,
 } from "react-native";
 import { Header } from "../../components/Header";
 
@@ -17,30 +19,56 @@ import CrossIcon from "../../../assets/icons/delete-cross.svg";
 import { Container } from "../../components/Container";
 import { KeyboardAvoidingView } from "react-native";
 import { TextBtn } from "../../components/TextBtn";
+import { SubmitBtn } from "../../components/SubmitBtn";
+import { Dimensions } from "react-native";
+
+const initialState = {
+  title: "",
+  location: "",
+};
 
 export const CreatePostsScreen = () => {
+  const [state, setState] = useState(initialState);
   const [isShownKeyboard, setIsShownKeyboard] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isDisable, setIsDisable] = useState(true);
 
+  const handleSubmit = () => {
+    if (isDisable) return;
+
+    setIsShownKeyboard(false);
+    Keyboard.dismiss();
+    console.log(state);
+    setState(initialState);
+    navigation.navigate("Home");
+  };
+
+  const handleKeyboardHide = () => {
+    Keyboard.dismiss();
+  };
+
+  const keyboardVerticalOffset = Dimensions.get("window").height * 0.3; // set to a percentage of the screen height that works for your design
   return (
-    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-      <Header>
-        <Text style={styles.title}>Create a publication</Text>
-        <TouchableOpacity
-          style={{
-            position: "absolute",
-            left: 16,
-            top: 55,
-          }}
-        >
-          <GoBackIcon />
-        </TouchableOpacity>
-      </Header>
-      <Container>
-        <TouchableWithoutFeedback>
+    <TouchableWithoutFeedback onPress={handleKeyboardHide}>
+      <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+        <Header>
+          <Text style={styles.title}>Create a publication</Text>
+          <TouchableOpacity
+            style={{
+              position: "absolute",
+              left: 16,
+              top: 55,
+            }}
+          >
+            <GoBackIcon />
+          </TouchableOpacity>
+        </Header>
+        <Container>
           <View>
             <View>
               <KeyboardAvoidingView
                 behavior={Platform.OS == "ios" ? "padding" : "height"}
+                keyboardVerticalOffset={keyboardVerticalOffset}
               >
                 <View style={{ marginBottom: isShownKeyboard ? 0 : 32 }}>
                   <View style={styles.imgBg}>
@@ -51,6 +79,10 @@ export const CreatePostsScreen = () => {
                   <Text style={styles.text}>Upload a photo</Text>
                 </View>
                 <TextInput
+                  onChangeText={(value) =>
+                    setState((prevState) => ({ ...prevState, title: value }))
+                  }
+                  value={state.title}
                   placeholder="Title..."
                   // placeholderTextColor="#BDBDBD"
                   style={styles.input}
@@ -58,6 +90,13 @@ export const CreatePostsScreen = () => {
                 <View>
                   <MapIcon style={styles.inputIcon} />
                   <TextInput
+                    value={state.location}
+                    onChangeText={(value) =>
+                      setState((prevState) => ({
+                        ...prevState,
+                        location: value,
+                      }))
+                    }
                     placeholder="The area..."
                     style={{
                       ...styles.input,
@@ -67,13 +106,21 @@ export const CreatePostsScreen = () => {
                     }}
                   />
                 </View>
-                {/* <TextBtn/>s */}
+                {isLoading ? (
+                  <ActivityIndicator size={"small"} color={"#FF6C00"} />
+                ) : (
+                  <SubmitBtn
+                    onPress={handleSubmit}
+                    text={"Publish"}
+                    disabled={isDisable}
+                  />
+                )}
               </KeyboardAvoidingView>
             </View>
           </View>
-        </TouchableWithoutFeedback>
-      </Container>
-    </View>
+        </Container>
+      </View>
+    </TouchableWithoutFeedback>
   );
 };
 
