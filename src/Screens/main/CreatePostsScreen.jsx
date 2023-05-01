@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -10,16 +10,16 @@ import {
   Keyboard,
   ActivityIndicator,
   Image,
+  Animated,
 } from "react-native";
 import { Header } from "../../components/Header";
 
 import GoBackIcon from "../../../assets/icons/arrow-left.svg";
 import MapIcon from "../../../assets/icons/map-pin.svg";
 import CameraIcon from "../../../assets/icons/camera.svg";
-import CrossIcon from "../../../assets/icons/delete-cross.svg";
+
 import { Container } from "../../components/Container";
 import { KeyboardAvoidingView } from "react-native";
-import { TextBtn } from "../../components/TextBtn";
 import { SubmitBtn } from "../../components/SubmitBtn";
 import { Dimensions } from "react-native";
 
@@ -34,22 +34,52 @@ export const CreatePostsScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isDisable, setIsDisable] = useState(true);
   const [photo, setPhoto] = useState(null);
+  const marginBottomValue = useRef(new Animated.Value(32)).current; //To raise a keyboard uphill and animate it
 
   const handleSubmit = () => {
-    if (isDisable) return;
+    if (isDisable) {
+      return;
+    }
 
-    setIsShownKeyboard(false);
-    Keyboard.dismiss();
     console.log(state);
     setState(initialState);
-    navigation.navigate("Home");
+    navigation.navigate("DefaultScreen");
   };
+
+  useEffect(() => {
+    //To raise a keyboard uphill and animate it
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        Animated.timing(marginBottomValue, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: false,
+        }).start();
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        Animated.timing(marginBottomValue, {
+          toValue: 32,
+          duration: 300,
+          useNativeDriver: false,
+        }).start();
+      }
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
 
   const handleKeyboardHide = () => {
     Keyboard.dismiss();
   };
 
-  const keyboardVerticalOffset = Dimensions.get("window").height * 0.3; // set to a percentage of the screen height that works for your design
+  // const keyboardVerticalOffset = Dimensions.get("window").height * 1; // set to a percentage of the screen height that works for your design
   return (
     <TouchableWithoutFeedback onPress={handleKeyboardHide}>
       <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
@@ -69,73 +99,77 @@ export const CreatePostsScreen = ({ navigation }) => {
         <Container>
           <View>
             <View>
-              <KeyboardAvoidingView
+              {/* <KeyboardAvoidingView
                 behavior={Platform.OS == "ios" ? "padding" : "height"}
-                keyboardVerticalOffset={keyboardVerticalOffset}
-              >
-                <View style={{ marginBottom: isShownKeyboard ? 0 : 32 }}>
-                  {!photo ? (
-                    <>
-                      <View style={styles.imgBg}>
-                        <Image
-                          style={styles.img}
-                          source={require("../../../assets/images/Rectangle.png")}
-                        />
-                        <TouchableOpacity style={styles.cameraBtn}>
-                          <CameraIcon />
-                        </TouchableOpacity>
-                      </View>
-                      <Text style={styles.text}>Redact</Text>
-                    </>
-                  ) : (
-                    <>
-                      <View style={{ ...styles.imgBg }}>
-                        <TouchableOpacity style={styles.cameraBtn}>
-                          <CameraIcon />
-                        </TouchableOpacity>
-                      </View>
-                      <Text style={styles.text}>Upload a photo</Text>
-                    </>
-                  )}
-                </View>
-                <TextInput
-                  onChangeText={(value) =>
-                    setState((prevState) => ({ ...prevState, title: value }))
-                  }
-                  value={state.title}
-                  placeholder="Title..."
-                  // placeholderTextColor="#BDBDBD"
-                  style={styles.input}
-                />
-                <View>
-                  <MapIcon style={styles.inputIcon} />
-                  <TextInput
-                    value={state.location}
-                    onChangeText={(value) =>
-                      setState((prevState) => ({
-                        ...prevState,
-                        location: value,
-                      }))
-                    }
-                    placeholder="The area..."
-                    style={{
-                      ...styles.input,
-                      paddingLeft: 30,
-                      marginTop: 16,
-                      marginBottom: 32,
-                    }}
-                  />
-                </View>
-                {isLoading ? (
-                  <ActivityIndicator size={"small"} color={"#FF6C00"} />
+                // keyboardVerticalOffset={keyboardVerticalOffset}
+              > */}
+              <Animated.View style={{ marginBottom: marginBottomValue }}>
+                {photo ? (
+                  <>
+                    <View style={styles.imgBg}>
+                      <Image
+                        style={styles.img}
+                        source={require("../../../assets/images/Rectangle.png")}
+                      />
+                      <TouchableOpacity style={styles.cameraBtn}>
+                        <CameraIcon />
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.text}>Redact</Text>
+                  </>
                 ) : (
-                  <SubmitBtn
-                    onPress={handleSubmit}
-                    text={"Publish"}
-                    disabled={isDisable}
-                  />
+                  <>
+                    <View style={{ ...styles.imgBg }}>
+                      <TouchableOpacity style={styles.cameraBtn}>
+                        <CameraIcon />
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.text}>Upload a photo</Text>
+                  </>
                 )}
-              </KeyboardAvoidingView>
+              </Animated.View>
+              <TextInput
+                onChangeText={(value) =>
+                  setState((prevState) => ({ ...prevState, title: value }))
+                }
+                value={state.title}
+                placeholder="Title..."
+                // placeholderTextColor="#BDBDBD"
+                style={styles.input}
+              />
+              <View>
+                <MapIcon style={styles.inputIcon} />
+                <TextInput
+                  value={state.location}
+                  onChangeText={(value) =>
+                    setState((prevState) => ({
+                      ...prevState,
+                      location: value,
+                    }))
+                  }
+                  placeholder="The area..."
+                  style={{
+                    ...styles.input,
+                    paddingLeft: 30,
+                    marginTop: 16,
+                    marginBottom: 32,
+                  }}
+                />
+              </View>
+              {isLoading ? (
+                <ActivityIndicator size={"small"} color={"#FF6C00"} />
+              ) : (
+                <SubmitBtn
+                  onPress={handleSubmit}
+                  text={"Publish"}
+                  disabled={
+                    photo && state.location && state.title
+                      ? !isDisable
+                      : isDisable
+                  }
+                />
+              )}
+              {/* </KeyboardAvoidingView> */}
             </View>
           </View>
         </Container>

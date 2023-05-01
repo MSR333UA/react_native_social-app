@@ -15,8 +15,8 @@ import {
   Dimensions,
   Button,
 } from "react-native";
-import { LoginScreen } from "./LoginScreen";
 import { TextBtn } from "../../components/TextBtn";
+import CrossIcon from "../../../assets/icons/delete-cross.svg";
 
 const halfWindowsWidth = Dimensions.get("window").width / 2;
 
@@ -67,19 +67,14 @@ export const RegistrationScreen = ({ navigation }) => {
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
-              <View
-                style={{
-                  ...styles.avatar,
-                  backgroundColor: "#F6F6F6",
-                }}
-              >
-                <TouchableOpacity>
+              <TouchableOpacity>
+                <View style={styles.avatar}>
                   {photo ? (
                     <>
                       <Image
                         source={require("../../../assets/images/avatar.png")}
                       />
-                      <SimpleLineIcons
+                      <CrossIcon
                         name="close"
                         size={25}
                         color="#BDBDBD"
@@ -91,11 +86,14 @@ export const RegistrationScreen = ({ navigation }) => {
                       name="pluscircleo"
                       color="#FF6C00"
                       size={25}
-                      style={styles.addCross}
+                      style={{
+                        ...styles.addCross,
+                        backgroundColor: "#F6F6F6",
+                      }}
                     />
                   )}
-                </TouchableOpacity>
-              </View>
+                </View>
+              </TouchableOpacity>
 
               <Text style={styles.title}>Registration</Text>
               <TextInput
@@ -204,10 +202,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#F6F6F6",
     borderRadius: 16,
   },
-  avatarIcon: {
-    position: "absolute",
-    right: halfWindowsWidth - 90,
-  },
+  // avatarIcon: {
+  //   position: "absolute",
+  //   right: halfWindowsWidth - 90,
+  // },
   addCross: {
     position: "absolute",
     top: 81,
@@ -215,9 +213,8 @@ const styles = StyleSheet.create({
   },
   deleteCross: {
     position: "absolute",
-    top: 81,
-    right: -12.5,
-    backgroundColor: "#fff",
+    top: 75,
+    right: -18,
     borderRadius: 50,
     height: 24,
   },
