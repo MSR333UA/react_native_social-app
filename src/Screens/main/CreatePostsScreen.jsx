@@ -9,6 +9,7 @@ import {
   TextInput,
   Keyboard,
   ActivityIndicator,
+  Image,
 } from "react-native";
 import { Header } from "../../components/Header";
 
@@ -27,11 +28,12 @@ const initialState = {
   location: "",
 };
 
-export const CreatePostsScreen = () => {
+export const CreatePostsScreen = ({ navigation }) => {
   const [state, setState] = useState(initialState);
   const [isShownKeyboard, setIsShownKeyboard] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isDisable, setIsDisable] = useState(true);
+  const [photo, setPhoto] = useState(null);
 
   const handleSubmit = () => {
     if (isDisable) return;
@@ -59,6 +61,7 @@ export const CreatePostsScreen = () => {
               left: 16,
               top: 55,
             }}
+            onPress={() => navigation.navigate("DefaultScreen")}
           >
             <GoBackIcon />
           </TouchableOpacity>
@@ -71,12 +74,29 @@ export const CreatePostsScreen = () => {
                 keyboardVerticalOffset={keyboardVerticalOffset}
               >
                 <View style={{ marginBottom: isShownKeyboard ? 0 : 32 }}>
-                  <View style={styles.imgBg}>
-                    <TouchableOpacity style={styles.cameraBtn}>
-                      <CameraIcon />
-                    </TouchableOpacity>
-                  </View>
-                  <Text style={styles.text}>Upload a photo</Text>
+                  {!photo ? (
+                    <>
+                      <View style={styles.imgBg}>
+                        <Image
+                          style={styles.img}
+                          source={require("../../../assets/images/Rectangle.png")}
+                        />
+                        <TouchableOpacity style={styles.cameraBtn}>
+                          <CameraIcon />
+                        </TouchableOpacity>
+                      </View>
+                      <Text style={styles.text}>Redact</Text>
+                    </>
+                  ) : (
+                    <>
+                      <View style={{ ...styles.imgBg }}>
+                        <TouchableOpacity style={styles.cameraBtn}>
+                          <CameraIcon />
+                        </TouchableOpacity>
+                      </View>
+                      <Text style={styles.text}>Upload a photo</Text>
+                    </>
+                  )}
                 </View>
                 <TextInput
                   onChangeText={(value) =>
@@ -148,13 +168,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderColor: "E8E8E8",
   },
+  img: {
+    position: "relative",
+    width: "100%",
+    borderRadius: 8,
+  },
   cameraBtn: {
     width: 60,
     height: 60,
-    backgroundColor: "#FFFFFF",
+
+    backgroundColor: "{photo?(rgba(255, 255, 255, 0.3)):( #FFFFFF)}",
+
     borderRadius: 50,
     justifyContent: "center",
     alignItems: "center",
+    position: "absolute",
   },
   text: {
     color: "#BDBDBD",
