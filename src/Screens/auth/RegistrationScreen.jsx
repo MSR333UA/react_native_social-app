@@ -17,6 +17,7 @@ import {
 } from "react-native";
 import { TextBtn } from "../../components/TextBtn";
 import CrossIcon from "../../../assets/icons/delete-cross.svg";
+import { Animated } from "react-native";
 
 const halfWindowsWidth = Dimensions.get("window").width / 2;
 
@@ -31,12 +32,32 @@ export const RegistrationScreen = ({ navigation }) => {
   const [state, setState] = useState(initialState);
   const [showPassword, setShowPassword] = useState(false);
   const [photo, setPhoto] = useState(null);
+  const [formHeight] = useState(new Animated.Value(490));
   // console.log(navigation);
-  const handleKeyboardHide = () => {
-    setIsShowKeyboard(false);
-    Keyboard.dismiss();
+
+  // const handleKeyboardHide = () => {
+  //   setIsShowKeyboard(false);
+  //   Keyboard.dismiss();
+  // };
+
+  const handleKeyboardShow = () => {
+    Animated.timing(formHeight, {
+      toValue: 670,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
   };
 
+  const handleKeyboardHide = () => {
+    Animated.timing(formHeight, {
+      toValue: 550,
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => {
+      setIsShowKeyboard(false);
+      Keyboard.dismiss();
+    });
+  };
   const handleSubmit = () => {
     setIsShowKeyboard(false);
     Keyboard.dismiss();
@@ -51,17 +72,18 @@ export const RegistrationScreen = ({ navigation }) => {
           style={styles.bgImage}
           source={require("../../../assets/images/imgBg.png")}
         >
-          <View
+          <Animated.View
             style={{
               ...styles.bgForm,
-              ...Platform.select({
-                // android: {
-                //   height: isShowKeyboard ? 390 : 550,
-                // },
-                ios: {
-                  height: isShowKeyboard ? 670 : 550,
-                },
-              }),
+              height: formHeight,
+              // ...Platform.select({
+              //   // android: {
+              //   //   height: isShowKeyboard ? 390 : 550,
+              //   // },
+              //   ios: {
+              //     height: isShowKeyboard ? 670 : 550,
+              //   },
+              // }),
             }}
           >
             <KeyboardAvoidingView
@@ -101,7 +123,10 @@ export const RegistrationScreen = ({ navigation }) => {
                   styles.inputText,
                   isShowKeyboard === "login" && styles.InputFocus,
                 ]}
-                onFocus={() => setIsShowKeyboard("login")}
+                onFocus={() => {
+                  setIsShowKeyboard("login");
+                  handleKeyboardShow();
+                }}
                 onBlur={() => setIsShowKeyboard(false)}
                 placeholder="Login"
                 value={state.login}
@@ -114,8 +139,14 @@ export const RegistrationScreen = ({ navigation }) => {
                   styles.inputText,
                   isShowKeyboard === "email" && styles.InputFocus,
                 ]}
-                onFocus={() => setIsShowKeyboard("email")}
-                onBlur={() => setIsShowKeyboard(false)}
+                onFocus={() => {
+                  setIsShowKeyboard("email");
+                  handleKeyboardShow();
+                }}
+                onBlur={() => {
+                  setIsShowKeyboard(false);
+                  Keyboard.dismiss();
+                }}
                 placeholder="Email address"
                 autoComplete="email"
                 value={state.email}
@@ -132,7 +163,10 @@ export const RegistrationScreen = ({ navigation }) => {
                 <TextInput
                   style={styles.passwordInput}
                   secureTextEntry={!showPassword}
-                  onFocus={() => setIsShowKeyboard("password")}
+                  onFocus={() => {
+                    setIsShowKeyboard("password");
+                    handleKeyboardShow();
+                  }}
                   onBlur={() => setIsShowKeyboard(false)}
                   placeholder="Password"
                   value={state.password}
@@ -172,7 +206,7 @@ export const RegistrationScreen = ({ navigation }) => {
                 />
               </>
             )}
-          </View>
+          </Animated.View>
         </ImageBackground>
       </View>
     </TouchableWithoutFeedback>

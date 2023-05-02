@@ -12,6 +12,7 @@ import {
   TouchableWithoutFeedback,
   View,
   Platform,
+  Animated,
 } from "react-native";
 import { TextBtn } from "../../components/TextBtn";
 
@@ -26,6 +27,7 @@ export const LoginScreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShowKeyboard] = useState(false);
   const [state, setState] = useState(initialState);
   const [showPassword, setShowPassword] = useState(false);
+  const [formHeight] = useState(new Animated.Value(490));
 
   const handleSubmit = () => {
     setIsShowKeyboard(false);
@@ -35,10 +37,30 @@ export const LoginScreen = ({ navigation }) => {
     navigation.navigate("Home");
   };
 
-  const handleKeyboardHide = () => {
-    setIsShowKeyboard(false);
-    Keyboard.dismiss();
+  // const handleKeyboardHide = () => {
+  //   setIsShowKeyboard(false);
+  //   Keyboard.dismiss();
+  // };
+
+  const handleKeyboardShow = () => {
+    Animated.timing(formHeight, {
+      toValue: 550,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
   };
+
+  const handleKeyboardHide = () => {
+    Animated.timing(formHeight, {
+      toValue: 490,
+      duration: 300,
+      useNativeDriver: false,
+    }).start(() => {
+      setIsShowKeyboard(false);
+      Keyboard.dismiss();
+    });
+  };
+
   return (
     <TouchableWithoutFeedback onPress={handleKeyboardHide}>
       <View style={styles.container}>
@@ -46,17 +68,18 @@ export const LoginScreen = ({ navigation }) => {
           style={styles.bgImage}
           source={require("../../../assets/images/imgBg.png")}
         >
-          <View
+          <Animated.View
             style={{
               ...styles.bgForm,
-              ...Platform.select({
-                // android: {
-                //   height: isShowKeyboard ? 270 : 490,
-                // },
-                ios: {
-                  height: isShowKeyboard ? 550 : 490,
-                },
-              }),
+              height: formHeight,
+              // ...Platform.select({
+              //   // android: {
+              //   //   height: isShowKeyboard ? 490 : 550,
+              //   // },
+              //   ios: {
+              //     height: isShowKeyboard ? 550 : 550,
+              //   },
+              // }),
             }}
           >
             <KeyboardAvoidingView
@@ -68,8 +91,14 @@ export const LoginScreen = ({ navigation }) => {
                   styles.inputText,
                   isShowKeyboard === "email" && styles.InputFocus,
                 ]}
-                onFocus={() => setIsShowKeyboard("email")}
-                onBlur={() => setIsShowKeyboard(false)}
+                onFocus={() => {
+                  setIsShowKeyboard("email");
+                  handleKeyboardShow();
+                }}
+                onBlur={() => {
+                  setIsShowKeyboard(false);
+                  Keyboard.dismiss();
+                }}
                 placeholder="Email address"
                 value={state.email}
                 onChangeText={(value) =>
@@ -85,8 +114,14 @@ export const LoginScreen = ({ navigation }) => {
                 <TextInput
                   style={styles.passwordInput}
                   secureTextEntry={!showPassword}
-                  onFocus={() => setIsShowKeyboard("password")}
-                  onBlur={() => setIsShowKeyboard(false)}
+                  onFocus={() => {
+                    setIsShowKeyboard("password");
+                    handleKeyboardShow();
+                  }}
+                  onBlur={() => {
+                    setIsShowKeyboard(false);
+                    Keyboard.dismiss();
+                  }}
                   placeholder="Password"
                   value={state.password}
                   onChangeText={(value) =>
@@ -125,7 +160,7 @@ export const LoginScreen = ({ navigation }) => {
                 />
               </>
             )}
-          </View>
+          </Animated.View>
         </ImageBackground>
       </View>
     </TouchableWithoutFeedback>
