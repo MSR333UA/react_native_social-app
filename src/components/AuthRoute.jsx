@@ -1,11 +1,11 @@
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { createStackNavigator } from "@react-navigation/stack";
 import { RegistrationScreen } from "../Screens/auth/RegistrationScreen";
 import { LoginScreen } from "../Screens/auth/LoginScreen";
 import { PostsScreen } from "../Screens/main/PostsScreen";
 import { DefaultScreen } from "../Screens/nested/DefaultScreen";
 import { Home } from "../Screens/Home";
 
-const Stack = createNativeStackNavigator();
+const Stack = createStackNavigator();
 
 export const AuthRoute = () => {
   return (

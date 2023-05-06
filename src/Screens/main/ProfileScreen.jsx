@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
+  FlatList,
   Image,
   ImageBackground,
   Keyboard,
@@ -14,6 +15,7 @@ import { Container } from "../../components/Container";
 import CrossIcon from "../../../assets/icons/delete-cross.svg";
 import { LogoutBtn } from "../../components/LogoutBtn";
 import { AntDesign } from "@expo/vector-icons";
+import { Post } from "../../components/Post";
 
 const halfWindowsWidth = Dimensions.get("window").width / 2;
 
@@ -66,12 +68,24 @@ export const ProfileScreen = ({ navigation }) => {
             // addStyles={{ marginLeft: "auto" }}
             onPress={() => navigation.navigate("Login")}
           />
+          <Text style={styles.title}>Nataki Romanova</Text>
+          <Post />
         </Container>
       </ImageBackground>
     </View>
   );
 };
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    position: "relative",
+    marginTop: 150,
+    paddingTop: 22,
+    paddingBottom: 42,
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 25,
+    borderTopRightRadius: 25,
+  },
   bcgImage: {
     width: "100%",
     height: "100%",
@@ -101,14 +115,15 @@ const styles = StyleSheet.create({
     top: 81,
     right: -12.5,
   },
-  container: {
-    flex: 1,
-    position: "relative",
-    marginTop: 150,
-    paddingTop: 22,
-    paddingBottom: 42,
-    backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: 25,
-    borderTopRightRadius: 25,
+  title: {
+    marginLeft: "auto",
+    marginRight: "auto",
+    fontFamily: "RobotoMedium",
+    lineHeight: 35,
+    color: "#212121",
+    paddingTop: 60,
+    marginBottom: 33,
+    fontSize: 30,
+    lineHeight: 30,
   },
 });

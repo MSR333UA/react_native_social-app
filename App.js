@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
+import "react-native-gesture-handler";
 import { NavigationContainer } from "@react-navigation/native";
 import * as SplashScreen from "expo-splash-screen";
 import { loadFonts } from "./src/Fonts/Fonts";

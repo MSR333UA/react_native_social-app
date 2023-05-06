@@ -40,6 +40,10 @@ export const RegistrationScreen = ({ navigation }) => {
   //   Keyboard.dismiss();
   // };
 
+  // const {
+  //   params: { userId },
+  // } = useRoute(); // Приймання параметрів
+
   const handleKeyboardShow = () => {
     Animated.timing(formHeight, {
       toValue: 670,
