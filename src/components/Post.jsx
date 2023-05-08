@@ -12,7 +12,11 @@ import CommentIcon from "../../assets/icons/message-circle.svg";
 import LikeIcon from "../../assets/icons/thumbs-up.svg";
 import MapIcon from "../../assets/icons/map-pin.svg";
 
-export const Post = () => {
+// const windowsWidth = Dimensions.get("window").width;
+
+export const Post = ({ data }) => {
+  const [isLoading, setIsLoading] = useState(true);
+
   return (
     <View
       style={{

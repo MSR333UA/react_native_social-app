@@ -8,7 +8,7 @@ import PlusIcon from "../../assets/icons/toolbar/union.svg";
 
 const Tab = createBottomTabNavigator();
 
-export const Home = () => {
+export const Home = ({ navigation }) => {
   const [isCreateScreen, setIsCreateScreen] = useState(true);
 
   return (
@@ -34,6 +34,12 @@ export const Home = () => {
         }}
         name="Posts"
         component={PostsScreen}
+        listeners={() => ({
+          tabPress: () => {
+            navigation.navigate("DefaultScreen");
+            setIsCreateScreen(true);
+          },
+        })}
       />
       <Tab.Screen
         options={{
@@ -58,6 +64,11 @@ export const Home = () => {
         }}
         name={isCreateScreen ? "Profile" : "Create"}
         component={isCreateScreen ? ProfileScreen : CreatePostsScreen}
+        listeners={() => ({
+          tabPress: () => {
+            setIsCreateScreen(!isCreateScreen);
+          },
+        })}
       />
     </Tab.Navigator>
   );

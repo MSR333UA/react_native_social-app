@@ -22,6 +22,7 @@ const halfWindowsWidth = Dimensions.get("window").width / 2;
 export const ProfileScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [photo, setPhoto] = useState(null);
+  const [data, setData] = useState([]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -70,6 +71,16 @@ export const ProfileScreen = ({ navigation }) => {
           />
           <Text style={styles.title}>Nataki Romanova</Text>
           <Post />
+          {/* <FlatList
+            data={data}
+            renderItem={({ item }) => {
+              return (
+                <View>
+                  <View></View>
+                </View>
+              );
+            }}
+          /> */}
         </Container>
       </ImageBackground>
     </View>

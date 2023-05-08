@@ -22,6 +22,8 @@ import { Container } from "../../components/Container";
 import { KeyboardAvoidingView } from "react-native";
 import { SubmitBtn } from "../../components/SubmitBtn";
 import { Dimensions } from "react-native";
+import { CreatePicture } from "../../components/CreatePicture";
+import { ModalView } from "../../components/ModalView";
 
 const initialState = {
   title: "",
@@ -34,13 +36,14 @@ export const CreatePostsScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [isDisable, setIsDisable] = useState(true);
   const [photo, setPhoto] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
   const marginBottomValue = useRef(new Animated.Value(32)).current; //To raise a keyboard uphill and animate it
 
   const handleSubmit = () => {
     if (isDisable) {
       return;
     }
-
     console.log(state);
     setState(initialState);
     navigation.navigate("DefaultScreen");
@@ -68,7 +71,6 @@ export const CreatePostsScreen = ({ navigation }) => {
         }).start();
       }
     );
-
     return () => {
       keyboardDidHideListener.remove();
       keyboardDidShowListener.remove();
@@ -79,6 +81,10 @@ export const CreatePostsScreen = ({ navigation }) => {
     Keyboard.dismiss();
   };
 
+  const openCamera = () => {
+    setModalVisible(false);
+    navigation.navigate("Camera", { prevState: "Create" });
+  };
   // const keyboardVerticalOffset = Dimensions.get("window").height * 1; // set to a percentage of the screen height that works for your design
   return (
     <TouchableWithoutFeedback onPress={handleKeyboardHide}>
@@ -120,7 +126,10 @@ export const CreatePostsScreen = ({ navigation }) => {
                 ) : (
                   <>
                     <View style={{ ...styles.imgBg }}>
-                      <TouchableOpacity style={styles.cameraBtn}>
+                      <TouchableOpacity
+                        style={styles.cameraBtn}
+                        onPress={() => setModalVisible(true)}
+                      >
                         <CameraIcon />
                       </TouchableOpacity>
                     </View>
@@ -171,6 +180,18 @@ export const CreatePostsScreen = ({ navigation }) => {
               )}
               {/* </KeyboardAvoidingView> */}
             </View>
+            <ModalView
+              modalVisible={modalVisible}
+              setModalVisible={setModalVisible}
+              width={200}
+              height={150}
+            >
+              <CreatePicture
+                setPhoto={(photo) => setPhoto(photo)}
+                openCamera={openCamera}
+                setModalVisible={setModalVisible}
+              />
+            </ModalView>
           </View>
         </Container>
       </View>
