@@ -6,6 +6,7 @@ import PostsIcon from "../../assets/icons/toolbar/grid.svg";
 import UserIcon from "../../assets/icons/toolbar/user.svg";
 import PlusIcon from "../../assets/icons/toolbar/union.svg";
 import DeleteIcon from "../../assets/icons/toolbar/trash.svg";
+import { CommentsScreen } from "./nested/CommentsScreen";
 const Tab = createBottomTabNavigator();
 
 export const Home = ({ navigation }) => {
@@ -23,6 +24,7 @@ export const Home = ({ navigation }) => {
           paddingTop: 10,
           paddingBottom: 30,
           backgroundColor: "#FFFFFF",
+          display: !isCreateScreen ? "none" : "flex",
         },
       }}
     >
@@ -41,6 +43,7 @@ export const Home = ({ navigation }) => {
           },
         })}
       />
+
       <Tab.Screen
         options={{
           tabBarIcon: ({ focused, color, size }) => {
@@ -50,6 +53,15 @@ export const Home = ({ navigation }) => {
               <UserIcon stroke={"#FFFFFF"} size={size} />
             );
           },
+          tabBarStyle: isCreateScreen
+            ? { display: "none" }
+            : {
+                height: 85,
+                paddingHorizontal: 85,
+                paddingTop: 10,
+                paddingBottom: 30,
+                backgroundColor: "#FFFFFF",
+              },
           tabBarItemStyle: {
             maxWidth: 70,
             height: 40,
@@ -60,6 +72,7 @@ export const Home = ({ navigation }) => {
         name={isCreateScreen ? "Create" : "Profile"}
         component={isCreateScreen ? CreatePostsScreen : ProfileScreen}
       />
+
       <Tab.Screen
         options={{
           tabBarIcon: ({ focused, color, size }) => {

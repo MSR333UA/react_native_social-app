@@ -103,6 +103,7 @@ export const CreatePostsScreen = ({ navigation }) => {
             <GoBackIcon />
           </TouchableOpacity>
         </Header>
+
         <Container>
           <View>
             <View>
