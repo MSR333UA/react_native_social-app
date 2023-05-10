@@ -4,8 +4,12 @@ import { LogoutBtn } from "../../components/LogoutBtn";
 import { Header } from "../../components/Header";
 import { UserInfo } from "../../components/UserInfo";
 import { Container } from "../../components/Container";
+import { Post } from "../../components/Post";
+import { useState } from "react";
 
 export const DefaultScreen = ({ navigation }) => {
+  const [data, setData] = useState([]);
+
   return (
     <View style={{ flex: 1 }}>
       <Header>
@@ -16,7 +20,22 @@ export const DefaultScreen = ({ navigation }) => {
         />
       </Header>
       <Container addStyles={{ flex: 1 }}>
-        <UserInfo />
+        <View style={styles.post}>
+          <View style={styles.wrap}>
+            <UserInfo />
+          </View>
+          <Post
+            data={{
+              data,
+            }}
+            showComments={() =>
+              navigation.navigate("Comments", {
+                data,
+                prevScreen: "Profile",
+              })
+            }
+          />
+        </View>
       </Container>
     </View>
   );
@@ -31,4 +50,13 @@ const styles = StyleSheet.create({
     fontSize: 17,
     lineHeight: 22,
   },
+  // post: {
+  //   flexDirection: "column",
+  // },
+  // wrap: {
+  //   width: "95%",
+  //   flexDirection: "row",
+  //   alignItems: "center",
+  //   justifyContent: "space-between",
+  // },
 });

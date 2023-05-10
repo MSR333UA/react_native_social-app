@@ -5,7 +5,7 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import PostsIcon from "../../assets/icons/toolbar/grid.svg";
 import UserIcon from "../../assets/icons/toolbar/user.svg";
 import PlusIcon from "../../assets/icons/toolbar/union.svg";
-
+import DeleteIcon from "../../assets/icons/toolbar/trash.svg";
 const Tab = createBottomTabNavigator();
 
 export const Home = ({ navigation }) => {
@@ -29,7 +29,7 @@ export const Home = ({ navigation }) => {
       <Tab.Screen
         options={{
           tabBarIcon: ({ focused, color, size }) => (
-            <PostsIcon fill={focused ? "#1B4371" : "#ffffff"} size={size} />
+            <PostsIcon fill={"#ffffff"} size={size} />
           ),
         }}
         name="Posts"
@@ -43,9 +43,13 @@ export const Home = ({ navigation }) => {
       />
       <Tab.Screen
         options={{
-          tabBarIcon: ({ focused, color, size }) => (
-            <PlusIcon fill={focused ? "#1B4371" : "#ffffff"} size={size} />
-          ),
+          tabBarIcon: ({ focused, color, size }) => {
+            return isCreateScreen ? (
+              <PlusIcon size={size} />
+            ) : (
+              <UserIcon stroke={"#FFFFFF"} size={size} />
+            );
+          },
           tabBarItemStyle: {
             maxWidth: 70,
             height: 40,
@@ -58,9 +62,13 @@ export const Home = ({ navigation }) => {
       />
       <Tab.Screen
         options={{
-          tabBarIcon: ({ focused, color, size }) => (
-            <UserIcon fill={focused ? "#1B4371" : "#ffffff"} size={size} />
-          ),
+          tabBarIcon: ({ focused, color, size }) => {
+            return isCreateScreen ? (
+              <UserIcon stroke={"#212121"} size={size} />
+            ) : (
+              <PlusIcon fill={"rgba(33, 33, 33, 0.8)"} size={size} />
+            );
+          },
         }}
         name={isCreateScreen ? "Profile" : "Create"}
         component={isCreateScreen ? ProfileScreen : CreatePostsScreen}
@@ -73,10 +81,3 @@ export const Home = ({ navigation }) => {
     </Tab.Navigator>
   );
 };
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});
