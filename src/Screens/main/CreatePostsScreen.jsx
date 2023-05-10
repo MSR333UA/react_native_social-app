@@ -96,6 +96,7 @@ export const CreatePostsScreen = ({ navigation }) => {
               position: "absolute",
               left: 16,
               top: 55,
+              padding: 5,
             }}
             onPress={() => navigation.navigate("DefaultScreen")}
           >

@@ -70,7 +70,17 @@ export const ProfileScreen = ({ navigation }) => {
             onPress={() => navigation.navigate("Login")}
           />
           <Text style={styles.title}>Nataki Romanova</Text>
-          <Post />
+          <Post
+            data={{
+              data,
+            }}
+            showComments={() =>
+              navigation.navigate("Comments", {
+                data,
+                prevScreen: "Profile",
+              })
+            }
+          />
           {/* <FlatList
             data={data}
             renderItem={({ item }) => {

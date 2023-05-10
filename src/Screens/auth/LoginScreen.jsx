@@ -24,13 +24,13 @@ const initialState = {
 };
 
 export const LoginScreen = ({ navigation }) => {
-  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+  const [isShowKeyboard, setIsShownKeyboard] = useState(false);
   const [state, setState] = useState(initialState);
   const [showPassword, setShowPassword] = useState(false);
   const [formHeight] = useState(new Animated.Value(490));
 
   const handleSubmit = () => {
-    setIsShowKeyboard(false);
+    setIsShownKeyboard(false);
     Keyboard.dismiss();
     console.log(state);
     setState(initialState);
@@ -56,7 +56,7 @@ export const LoginScreen = ({ navigation }) => {
       duration: 300,
       useNativeDriver: false,
     }).start(() => {
-      setIsShowKeyboard(false);
+      setIsShownKeyboard(false);
       Keyboard.dismiss();
     });
   };
@@ -92,11 +92,11 @@ export const LoginScreen = ({ navigation }) => {
                   isShowKeyboard === "email" && styles.InputFocus,
                 ]}
                 onFocus={() => {
-                  setIsShowKeyboard("email");
+                  setIsShownKeyboard("email");
                   handleKeyboardShow();
                 }}
                 onBlur={() => {
-                  setIsShowKeyboard(false);
+                  setIsShownKeyboard(false);
                   Keyboard.dismiss();
                 }}
                 placeholder="Email address"
@@ -115,11 +115,11 @@ export const LoginScreen = ({ navigation }) => {
                   style={styles.passwordInput}
                   secureTextEntry={!showPassword}
                   onFocus={() => {
-                    setIsShowKeyboard("password");
+                    setIsShownKeyboard("password");
                     handleKeyboardShow();
                   }}
                   onBlur={() => {
-                    setIsShowKeyboard(false);
+                    setIsShownKeyboard(false);
                     Keyboard.dismiss();
                   }}
                   placeholder="Password"
