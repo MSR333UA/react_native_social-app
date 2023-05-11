@@ -94,11 +94,11 @@ export const CreatePostsScreen = ({ navigation }) => {
           <TouchableOpacity
             style={{
               position: "absolute",
-              left: 16,
-              top: 55,
+              left: 11,
+              top: 50,
               padding: 5,
             }}
-            onPress={() => navigation.navigate("DefaultScreen")}
+            onPress={() => navigation.goBack()}
           >
             <GoBackIcon />
           </TouchableOpacity>

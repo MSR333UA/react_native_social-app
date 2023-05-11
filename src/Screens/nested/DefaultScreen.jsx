@@ -31,7 +31,7 @@ export const DefaultScreen = ({ navigation }) => {
             showComments={() =>
               navigation.navigate("Comments", {
                 data,
-                prevScreen: "Profile",
+                prevScreen: "DefaultScreen",
               })
             }
           />
@@ -53,10 +53,8 @@ const styles = StyleSheet.create({
   // post: {
   //   flexDirection: "column",
   // },
-  // wrap: {
-  //   width: "95%",
-  //   flexDirection: "row",
-  //   alignItems: "center",
-  //   justifyContent: "space-between",
-  // },
+
+  wrap: {
+    marginBottom: 32,
+  },
 });

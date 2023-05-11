@@ -20,10 +20,13 @@ import SendIcon from "../../../assets/icons/send.svg";
 
 const windowsWidth = Dimensions.get("window").width;
 
-export const CommentsScreen = ({ navigation }) => {
+export const CommentsScreen = ({ navigation, route }) => {
   const [userComment, setUserComment] = useState("");
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isShownKeyboard, setIsShownKeyboard] = useState(false);
+
+  const { id, photo, commentsNumber, prevScreen } = route.params;
+
   const inputRef = useRef(null);
   const inputHeight = useRef(new Animated.Value(50)).current;
 
@@ -55,7 +58,7 @@ export const CommentsScreen = ({ navigation }) => {
 
   const handleFocus = () => {
     Animated.timing(inputHeight, {
-      toValue: 60,
+      toValue: 100,
       duration: 300,
       useNativeDriver: false,
     }).start();
@@ -71,16 +74,17 @@ export const CommentsScreen = ({ navigation }) => {
 
   return (
     <TouchableWithoutFeedback onPress={handleKeyboardHide}>
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
         <Header>
           <Text style={styles.title}>Comments</Text>
           <TouchableOpacity
             style={{
               position: "absolute",
-              left: 16,
-              top: 55,
+              left: 11,
+              top: 50,
+              padding: 5,
             }}
-            onPress={() => navigation.navigate("Profile")}
+            onPress={() => navigation.navigate(prevScreen)}
           >
             <GoBackIcon />
           </TouchableOpacity>
@@ -97,6 +101,7 @@ export const CommentsScreen = ({ navigation }) => {
             position: "absolute",
             bottom: isShownKeyboard ? keyboardHeight - 60 : 8,
             left: 16,
+            marginBottom: 16,
           }}
         >
           <Animated.View style={{ height: inputHeight }}>
