@@ -7,6 +7,7 @@ import UserIcon from "../../assets/icons/toolbar/user.svg";
 import PlusIcon from "../../assets/icons/toolbar/union.svg";
 import DeleteIcon from "../../assets/icons/toolbar/trash.svg";
 import { CommentsScreen } from "./nested/CommentsScreen";
+import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 const Tab = createBottomTabNavigator();
 
 export const Home = ({ navigation }) => {
@@ -24,16 +25,29 @@ export const Home = ({ navigation }) => {
           paddingTop: 10,
           paddingBottom: 30,
           backgroundColor: "#FFFFFF",
-          display: !isCreateScreen ? "none" : "flex",
+          display: "none",
         },
       }}
     >
       <Tab.Screen
-        options={{
+        options={({ route }) => ({
           tabBarIcon: ({ focused, color, size }) => (
             <PostsIcon fill={"#ffffff"} size={size} />
           ),
-        }}
+          tabBarStyle: ((route) => {
+            const routeName = getFocusedRouteNameFromRoute(route) ?? "";
+            if (routeName === "Comments" || routeName === "Map") {
+              return { display: "none" };
+            }
+            return {
+              height: 85,
+              paddingHorizontal: 85,
+              paddingTop: 10,
+              paddingBottom: 30,
+              backgroundColor: "#FFFFFF",
+            };
+          })(route),
+        })}
         name="Posts"
         component={PostsScreen}
         listeners={() => ({

@@ -45,7 +45,7 @@ export const LoginScreen = ({ navigation }) => {
   const handleKeyboardShow = () => {
     Animated.timing(formHeight, {
       toValue: 550,
-      duration: 300,
+      duration: 500,
       useNativeDriver: false,
     }).start();
   };
@@ -53,7 +53,7 @@ export const LoginScreen = ({ navigation }) => {
   const handleKeyboardHide = () => {
     Animated.timing(formHeight, {
       toValue: 490,
-      duration: 300,
+      duration: 500,
       useNativeDriver: false,
     }).start(() => {
       setIsShownKeyboard(false);

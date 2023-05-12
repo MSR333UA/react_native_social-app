@@ -47,7 +47,7 @@ export const RegistrationScreen = ({ navigation }) => {
   const handleKeyboardShow = () => {
     Animated.timing(formHeight, {
       toValue: 670,
-      duration: 300,
+      duration: 500,
       useNativeDriver: false,
     }).start();
   };
@@ -55,7 +55,7 @@ export const RegistrationScreen = ({ navigation }) => {
   const handleKeyboardHide = () => {
     Animated.timing(formHeight, {
       toValue: 550,
-      duration: 300,
+      duration: 500,
       useNativeDriver: false,
     }).start(() => {
       setIsShowKeyboard(false);

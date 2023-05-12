@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Dimensions,
@@ -19,10 +19,17 @@ import { Post } from "../../components/Post";
 
 const halfWindowsWidth = Dimensions.get("window").width / 2;
 
-export const ProfileScreen = ({ navigation }) => {
+export const ProfileScreen = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [photo, setPhoto] = useState(null);
   const [data, setData] = useState([]);
+
+  useEffect(() => {
+    if (route.params) {
+      setData((prevState) => [route.params, ...prevState]);
+    }
+  }, [route.params]);
+  console.log("dataProfile", data);
 
   return (
     <View style={{ flex: 1 }}>
@@ -37,7 +44,7 @@ export const ProfileScreen = ({ navigation }) => {
                 <ActivityIndicator size={"small"} color={"#FF6C00"} />
               ) : (
                 <>
-                  {!photo ? (
+                  {data ? (
                     <>
                       <Image
                         source={require("../../../assets/images/avatar.png")}
@@ -70,27 +77,36 @@ export const ProfileScreen = ({ navigation }) => {
             onPress={() => navigation.navigate("Login")}
           />
           <Text style={styles.title}>Nataki Romanova</Text>
-          <Post
-            data={{
-              data,
-            }}
-            showComments={() =>
-              navigation.navigate("Comments", {
-                data,
-                prevScreen: "Profile",
-              })
-            }
-          />
-          {/* <FlatList
+
+          <FlatList
             data={data}
             renderItem={({ item }) => {
+              const { photo, state } = item;
               return (
-                <View>
-                  <View></View>
-                </View>
+                <Post
+                  data={{
+                    photo,
+                    state,
+                  }}
+                  showComments={() =>
+                    navigation.navigate("Comments", {
+                      photo,
+                      state,
+                      prevScreen: "Profile",
+                    })
+                  }
+                  showLocation={() =>
+                    navigation.navigate("Map", {
+                      photo,
+                      state,
+                      prevScreen: "Profile",
+                    })
+                  }
+                />
               );
             }}
-          /> */}
+            keyExtractor={(item) => item.id}
+          />
         </Container>
       </ImageBackground>
     </View>

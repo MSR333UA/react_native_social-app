@@ -30,7 +30,7 @@ const initialState = {
   location: "",
 };
 
-export const CreatePostsScreen = ({ navigation }) => {
+export const CreatePostsScreen = ({ navigation, route }) => {
   const [state, setState] = useState(initialState);
   const [isShownKeyboard, setIsShownKeyboard] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -40,13 +40,30 @@ export const CreatePostsScreen = ({ navigation }) => {
 
   const marginBottomValue = useRef(new Animated.Value(32)).current; //To raise a keyboard uphill and animate it
 
-  const handleSubmit = () => {
+  // console.log(route.params);
+  useEffect(() => {
+    if (route.params) {
+      setPhoto(route.params.photo);
+    }
+  }, [route]);
+
+  useEffect(() => {
+    if (!Object.values(state).includes("") && photo) {
+      setIsDisable(false);
+    }
+  }, [state]);
+
+  const handleSubmit = async () => {
     if (isDisable) {
       return;
     }
-    console.log(state);
+    // console.log(state);
+    setPhoto(null);
+    setIsDisable(true);
     setState(initialState);
-    navigation.navigate("DefaultScreen");
+    setIsDisable(true);
+    navigation.navigate("DefaultScreen", { photo, state });
+    navigation.setParams({ photo: null });
   };
 
   useEffect(() => {
@@ -55,8 +72,8 @@ export const CreatePostsScreen = ({ navigation }) => {
       "keyboardDidShow",
       () => {
         Animated.timing(marginBottomValue, {
-          toValue: 0,
-          duration: 300,
+          toValue: -40,
+          duration: 500,
           useNativeDriver: false,
         }).start();
       }
@@ -66,7 +83,7 @@ export const CreatePostsScreen = ({ navigation }) => {
       () => {
         Animated.timing(marginBottomValue, {
           toValue: 32,
-          duration: 300,
+          duration: 500,
           useNativeDriver: false,
         }).start();
       }
@@ -83,7 +100,7 @@ export const CreatePostsScreen = ({ navigation }) => {
 
   const openCamera = () => {
     setModalVisible(false);
-    navigation.navigate("Camera", { prevState: "Create" });
+    navigation.navigate("Camera", { prevScreen: "Create" });
   };
   // const keyboardVerticalOffset = Dimensions.get("window").height * 1; // set to a percentage of the screen height that works for your design
   return (
@@ -115,11 +132,11 @@ export const CreatePostsScreen = ({ navigation }) => {
                 {photo ? (
                   <>
                     <View style={styles.imgBg}>
-                      <Image
-                        style={styles.img}
-                        source={require("../../../assets/images/Rectangle.png")}
-                      />
-                      <TouchableOpacity style={styles.cameraBtn}>
+                      <Image style={styles.img} source={{ uri: photo }} />
+                      <TouchableOpacity
+                        style={styles.cameraBtn}
+                        onPress={() => setPhoto(null)}
+                      >
                         <CameraIcon />
                       </TouchableOpacity>
                     </View>
@@ -173,11 +190,7 @@ export const CreatePostsScreen = ({ navigation }) => {
                 <SubmitBtn
                   onPress={handleSubmit}
                   text={"Publish"}
-                  disabled={
-                    photo && state.location && state.title
-                      ? !isDisable
-                      : isDisable
-                  }
+                  disabled={isDisable}
                 />
               )}
               {/* </KeyboardAvoidingView> */}
@@ -229,6 +242,7 @@ const styles = StyleSheet.create({
     position: "relative",
     width: "100%",
     borderRadius: 8,
+    height: 240,
   },
   cameraBtn: {
     width: 60,
@@ -257,9 +271,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 19,
     fontFamily: "RobotoRegular",
+    backgroundColor: "#FFFFFF",
   },
   inputIcon: {
     position: "absolute",
     top: 28,
+    zIndex: 1,
   },
 });

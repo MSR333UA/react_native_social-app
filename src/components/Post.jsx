@@ -12,12 +12,14 @@ import CommentIcon from "../../assets/icons/message-circle.svg";
 import LikeIcon from "../../assets/icons/thumbs-up.svg";
 import MapIcon from "../../assets/icons/map-pin.svg";
 
-const windowsWidth = Dimensions.get("window").width;
-
 export const Post = ({ data, showComments, showLocation }) => {
   const [isLoading, setIsLoading] = useState(true);
-  const { id, name, location, photo, commentsNumber, likesNumber, coords } =
-    data;
+  const {
+    // id,
+    // name, location, photo, commentsNumber, likesNumber,  coords
+    photo,
+    state: { location, title },
+  } = data;
 
   return (
     <View
@@ -27,10 +29,11 @@ export const Post = ({ data, showComments, showLocation }) => {
       }}
     >
       <Image
-        source={require("../../assets/images/Rect.png")}
+        source={{ uri: photo }}
+        onLoad={() => setIsLoading(false)}
         style={styles.image}
       />
-      <Text style={styles.imgTitle}>Захід сонця над Чорним морем</Text>
+      <Text style={styles.imgTitle}>{title}</Text>
       <View
         style={{
           ...styles.icons,
@@ -47,15 +50,15 @@ export const Post = ({ data, showComments, showLocation }) => {
               marginLeft: 24,
               ...styles.icons,
             }}
-            onPress={() => uploadLikeToDB(id, userId, nickname, likesNumber)}
+            // onPress={() => uploadLikeToDB(id, userId, nickname, likesNumber)}
           >
             <LikeIcon style={{ marginRight: 8, stroke: "#FF6C00" }} />
-            <Text style={styles.iconNumber}>200</Text>
+            <Text style={styles.iconNumber}>30</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.icons}>
+        <TouchableOpacity style={styles.icons} onPress={showLocation}>
           <MapIcon style={{ marginRight: 8 }} />
-          <Text style={styles.locationText}>Ukraine</Text>
+          <Text style={styles.locationText}>{location}</Text>
         </TouchableOpacity>
       </View>
     </View>

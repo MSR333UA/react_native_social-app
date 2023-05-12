@@ -28,7 +28,7 @@ export const CommentsScreen = ({ navigation, route }) => {
   const { id, photo, commentsNumber, prevScreen } = route.params;
 
   const inputRef = useRef(null);
-  const inputHeight = useRef(new Animated.Value(50)).current;
+  const inputHeight = useRef(new Animated.Value(90)).current;
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -59,7 +59,7 @@ export const CommentsScreen = ({ navigation, route }) => {
   const handleFocus = () => {
     Animated.timing(inputHeight, {
       toValue: 100,
-      duration: 300,
+      duration: 500,
       useNativeDriver: false,
     }).start();
   };
@@ -67,7 +67,7 @@ export const CommentsScreen = ({ navigation, route }) => {
   const handleBlur = () => {
     Animated.timing(inputHeight, {
       toValue: 40,
-      duration: 300,
+      duration: 500,
       useNativeDriver: false,
     }).start();
   };
@@ -110,7 +110,6 @@ export const CommentsScreen = ({ navigation, route }) => {
               value={userComment}
               onChangeText={setUserComment}
               maxLength={150}
-              multiline={true}
               style={[
                 styles.input,
                 isShownKeyboard && styles.animatedInputFocus,
