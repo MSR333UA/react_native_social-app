@@ -13,30 +13,31 @@ export const CameraScreen = ({ navigation, route }) => {
   const [type, setType] = useState(CameraType.back);
   const [location, setLocation] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null);
+  const [processingCapture, setProcessingCapture] = useState(false); // new state variable
 
   const { prevScreen } = route.params;
 
-  // let text = "Waiting..";
-  // if (errorMsg) {
-  //   text = errorMsg;
-  // } else if (location) {
-  //   text = JSON.stringify(location);
-  // }
-
   const takePhoto = async () => {
-    const shot = await camera.takePictureAsync();
+    if (camera && !processingCapture) {
+      setProcessingCapture(true); // set the state variable to true to indicate capture is in progress
+      const shot = await camera.takePictureAsync({ base64: true });
+      setPhoto(shot.uri);
+      setProcessingCapture(false); // reset the state variable to false when capture is complete
+
+      const location = await Location.getCurrentPositionAsync();
+      console.log("latitude", location.coords.latitude);
+      console.log("longitude", location.coords.longitude);
+    }
+
+    // const shot = await camera.takePictureAsync();
     // Get the location coordinates
     // let coords = null;
     // if (location && location.coords) {
     //   coords = location.coords;
     // }
 
-    const location = await Location.getCurrentPositionAsync();
-    console.log("latitude", location.coords.latitude);
-    console.log("longitude", location.coords.longitude);
-
     // Set the photo URI and location coordinates in state
-    setPhoto(shot.uri);
+    // setPhoto(shot.uri);
     // setLocation(coords);
 
     // console.log("photo, location", photo, location);
@@ -51,6 +52,8 @@ export const CameraScreen = ({ navigation, route }) => {
         setErrorMsg("Permission to access location was denied");
         return;
       }
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
     })();
   }, []);
 
@@ -125,7 +128,7 @@ const styles = StyleSheet.create({
     height: 40,
     alignItems: "center",
     justifyContent: "center",
-    borderRadius: "50%",
+    borderRadius: 50,
     backgroundColor: "#F6FAF4",
   },
   camera: {
@@ -133,7 +136,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     height: "83%",
     borderRadius: 8,
-    borderRadius: 50,
   },
   border: {
     borderStyle: "solid",

@@ -1,9 +1,8 @@
 import React from "react";
 import MapView, { Marker } from "react-native-maps";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import GoBackIcon from "../../../assets/icons/arrow-left.svg";
 import { Header } from "../../components/Header";
-import { TouchableOpacity } from "react-native-gesture-handler";
 
 export const MapScreen = ({ navigation }) => {
   return (
@@ -22,6 +21,7 @@ export const MapScreen = ({ navigation }) => {
           <GoBackIcon />
         </TouchableOpacity>
       </Header>
+
       <MapView
         style={styles.map}
         initialRegion={{
