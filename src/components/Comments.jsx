@@ -2,30 +2,35 @@ import React from "react";
 
 import { Image, StyleSheet, View, Text } from "react-native";
 
-export const Comments = () => {
+export const Comments = ({
+  index,
+  item: { id, avatarURL, userId, nickname, text, date },
+  commentsLength,
+}) => {
+  // const { avatarURL, nickname, text, date } = item;
+  const isInteger = Number.isInteger(index / 2);
   return (
     <View
       style={{
-        flexDirection: "row-reverse",
+        flexDirection: isInteger ? "row" : "row-reverse",
         justifyContent: "space-between",
+        marginBottom: index === commentsLength - 1 ? 0 : 24,
       }}
     >
       <Image
-        source={require("../../assets/images/avatar.png")}
+        source={{ uri: avatarURL }}
         style={{
           ...styles.avatar,
-          marginRight: 0,
-          marginLeft: 10,
+          marginRight: isInteger ? 10 : 0,
+          marginLeft: isInteger ? 0 : 10,
         }}
       />
       <View style={styles.comment}>
         <View>
-          <Text style={styles.nicknameText}>Natali</Text>
-          <Text style={styles.commentText}>
-            Lorem ipsum dolor sit amet consectetur
-          </Text>
+          <Text style={styles.nicknameText}>{nickname}</Text>
+          <Text style={styles.commentText}>{text}</Text>
           <View>
-            <Text style={styles.commentDate}>09 may, 2023 | 18:00</Text>
+            <Text style={styles.commentDate}>{date}</Text>
           </View>
         </View>
       </View>

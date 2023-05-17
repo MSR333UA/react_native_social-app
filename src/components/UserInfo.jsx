@@ -1,16 +1,28 @@
 import { Image, StyleSheet, Text, View } from "react-native";
 
-export const UserInfo = () => {
+export const UserInfo = ({ userAvatar, nickname, email }) => {
+  // if (data.length === 0) {
+  //   return null; // Або поверніть пустий розмітку, якщо масив порожній
+  // }
+  // const { email, userAvatar, nickname } = data[0];
+
+  // console.log("data", email);
   return (
     <View style={styles.user}>
-      <Image
-        style={styles.avatar}
-        source={require("../../assets/images/avatar.png")}
-      />
+      {userAvatar ? (
+        <Image style={styles.avatar} source={{ uri: userAvatar }} />
+      ) : (
+        <View
+          style={{
+            ...styles.avatar,
+            backgroundColor: "#F6F6F6",
+          }}
+        />
+      )}
 
       <View style={styles.textWrap}>
-        <Text style={styles.name}>Natalia Romanova</Text>
-        <Text style={styles.email}>email@example.com</Text>
+        <Text style={styles.name}>{nickname}</Text>
+        <Text style={styles.email}>{email}</Text>
       </View>
     </View>
   );

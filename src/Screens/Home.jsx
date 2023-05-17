@@ -1,17 +1,18 @@
 import React, { useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
 import { CreatePostsScreen, PostsScreen, ProfileScreen } from "./main";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import PostsIcon from "../../assets/icons/toolbar/grid.svg";
 import UserIcon from "../../assets/icons/toolbar/user.svg";
 import PlusIcon from "../../assets/icons/toolbar/union.svg";
-import DeleteIcon from "../../assets/icons/toolbar/trash.svg";
-import { CommentsScreen } from "./nested/CommentsScreen";
+
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
+
 const Tab = createBottomTabNavigator();
 
 export const Home = ({ navigation }) => {
   const [isCreateScreen, setIsCreateScreen] = useState(true);
+
+  // const dispatch = useDispatch();
 
   return (
     <Tab.Navigator

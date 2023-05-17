@@ -10,25 +10,35 @@ import {
   Dimensions,
   Keyboard,
   Animated,
+  FlatList,
 } from "react-native";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../../firebase/config";
+import { uploadCommentToDB } from "../../firebase/storageOperations";
+import moment from "moment";
+import "moment/locale/uk";
+
 import { Header } from "../../components/Header";
 import { Container } from "../../components/Container";
 import { Comments } from "../../components/Comments";
 
 import GoBackIcon from "../../../assets/icons/arrow-left.svg";
 import SendIcon from "../../../assets/icons/send.svg";
+import { useSelector } from "react-redux";
 
 const windowsWidth = Dimensions.get("window").width;
 
 export const CommentsScreen = ({ navigation, route }) => {
   const [userComment, setUserComment] = useState("");
+  const [comments, setComments] = useState([]);
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [isShownKeyboard, setIsShownKeyboard] = useState(false);
 
-  const { id, photo, commentsNumber, prevScreen } = route.params;
-
   const inputRef = useRef(null);
   const inputHeight = useRef(new Animated.Value(90)).current;
+
+  const { userId, nickname, avatarURL } = useSelector((state) => state.auth);
+  const { id, photo, commentsNumber, prevScreen } = route.params;
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -72,6 +82,38 @@ export const CommentsScreen = ({ navigation, route }) => {
     }).start();
   };
 
+  const getComments = async () => {
+    await onSnapshot(collection(db, "posts", id, "comments"), (snapshot) => {
+      const commentsArray = snapshot.docs.map((doc) => {
+        const post = doc.data();
+        return { id: doc.id, ...post };
+      });
+      setComments(commentsArray);
+    });
+  };
+
+  useEffect(() => {
+    getComments();
+  }, []);
+
+  const handleSubmit = async () => {
+    const date = moment().format("DD MMMM, YYYY | HH:mm");
+    const text = userComment;
+    await uploadCommentToDB({
+      id,
+      userId,
+      avatarURL,
+      nickname,
+      commentsNumber,
+      text,
+      date,
+    });
+
+    setUserComment("");
+    handleKeyboardHide();
+    console.log("text", text);
+  };
+
   return (
     <TouchableWithoutFeedback onPress={handleKeyboardHide}>
       <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
@@ -89,12 +131,24 @@ export const CommentsScreen = ({ navigation, route }) => {
             <GoBackIcon />
           </TouchableOpacity>
         </Header>
-        <Container>
-          <Image
-            source={require("../../../assets/images/Rect.png")}
-            style={styles.image}
-          />
-          <Comments />
+        <Container addStyles={{ flex: 1 }}>
+          <Image source={{ uri: photo }} style={styles.image} />
+          {comments && (
+            <FlatList
+              data={comments}
+              renderItem={({ item, index }) => {
+                return (
+                  <Comments
+                    index={index}
+                    item={item}
+                    commentsLength={comments.length}
+                    StoredUserId={userId}
+                  />
+                );
+              }}
+              keyExtractor={(item) => item.id.toString()}
+            />
+          )}
         </Container>
         <View
           style={{
@@ -125,7 +179,10 @@ export const CommentsScreen = ({ navigation, route }) => {
               ref={inputRef}
             />
           </Animated.View>
-          <TouchableOpacity style={styles.inputButton}>
+          <TouchableOpacity
+            onPress={() => handleSubmit()}
+            style={styles.inputButton}
+          >
             <SendIcon />
           </TouchableOpacity>
         </View>
@@ -146,7 +203,7 @@ const styles = StyleSheet.create({
   },
   image: {
     height: 240,
-    width: "100%",
+    // width: "100%",
     backgroundColor: "#F6F6F6",
     borderRadius: 8,
     marginBottom: 32,

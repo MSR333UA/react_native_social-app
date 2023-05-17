@@ -5,7 +5,6 @@ import {
   FlatList,
   Image,
   ImageBackground,
-  Keyboard,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -16,20 +15,92 @@ import CrossIcon from "../../../assets/icons/delete-cross.svg";
 import { LogoutBtn } from "../../components/LogoutBtn";
 import { AntDesign } from "@expo/vector-icons";
 import { Post } from "../../components/Post";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  authLogOut,
+  changeUserPhotoURL,
+} from "../../redux/auth/authOperations";
+import {
+  deleteImageFromStorage,
+  uploadImageToStorage,
+} from "../../firebase/storageOperations";
+import { ModalView } from "../../components/ModalView";
+import { CreatePicture } from "../../components/CreatePicture";
+import { collection, where, onSnapshot, query } from "firebase/firestore";
+import { authSlice } from "../../redux/auth/authSlice";
+import { db } from "../../firebase/config";
 
 const halfWindowsWidth = Dimensions.get("window").width / 2;
+const { changeAvatar } = authSlice.actions;
 
 export const ProfileScreen = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [photo, setPhoto] = useState(null);
+  const [newAvatarURL, setNewAvatarURL] = useState(null);
   const [data, setData] = useState([]);
+  const [photo, setPhoto] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const { userId, nickname, email, avatarURL } = useSelector(
+    (state) => state.auth
+  );
+  console.log("avatarURL", avatarURL);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (route.params) {
-      setData((prevState) => [route.params, ...prevState]);
+      setPhoto(route.params.photo);
     }
-  }, [route.params]);
-  console.log("dataProfile", data);
+  }, [route]);
+
+  const getUserPosts = async () => {
+    const q = await query(
+      collection(db, "posts"),
+      where("userId", "==", userId)
+    );
+    await onSnapshot(q, (snapshot) => {
+      const postsArray = snapshot.docs.map((doc) => {
+        const post = doc.data();
+        return { id: doc.id, ...post };
+      });
+      setData(postsArray);
+    });
+  };
+
+  useEffect(() => {
+    getUserPosts();
+    changeUserAvatar();
+  }, []);
+
+  useEffect(() => {
+    changeUserAvatar();
+  }, [photo]);
+
+  const changeUserAvatar = async () => {
+    if (!photo) {
+      return;
+    }
+    setIsLoading(true);
+    if (avatarURL) {
+      await deleteImageFromStorage("usersAvatars", email);
+      dispatch(changeAvatar({ avatarURL: null }));
+    }
+    const URL = await uploadImageToStorage(photo, "usersAvatars", email);
+    await dispatch(changeUserPhotoURL({ URL }));
+    setIsLoading(false);
+    setNewAvatarURL(URL);
+  };
+
+  const openCamera = () => {
+    setModalVisible(false);
+    navigation.navigate("Camera", { prevScreen: "Profile" });
+  };
+
+  // useEffect(() => {
+  //   if (route.params) {
+  //     setData((prevState) => [route.params, ...prevState]);
+  //   }
+  // }, [route.params]);
+  // console.log("dataProfile", data);
 
   return (
     <View style={{ flex: 1 }}>
@@ -38,75 +109,102 @@ export const ProfileScreen = ({ navigation, route }) => {
         source={require("../../../assets/images/imgBg.png")}
       >
         <Container addStyles={styles.container}>
-          <TouchableOpacity>
-            <View style={styles.avatar}>
-              {isLoading ? (
-                <ActivityIndicator size={"small"} color={"#FF6C00"} />
-              ) : (
+          <TouchableOpacity onPress={() => setModalVisible(true)}>
+            {avatarURL || newAvatarURL ? (
+              <View>
+                {isLoading && (
+                  <ActivityIndicator size={"small"} color={"#FF6C00"} />
+                )}
                 <>
-                  {data ? (
-                    <>
-                      <Image
-                        source={require("../../../assets/images/avatar.png")}
-                      />
-                      <CrossIcon
-                        name="close"
-                        size={25}
-                        color="#BDBDBD"
-                        style={styles.deleteCross}
-                      />
-                    </>
-                  ) : (
-                    <AntDesign
-                      name="pluscircleo"
-                      color="#FF6C00"
-                      size={25}
-                      style={{
-                        ...styles.addCross,
-                        backgroundColor: "#F6F6F6",
-                      }}
-                    />
-                  )}
+                  <Image
+                    style={styles.avatar}
+                    source={{
+                      uri: newAvatarURL ? newAvatarURL : avatarURL,
+                    }}
+                    onLoad={() => setIsLoading(false)}
+                  />
+                  <CrossIcon
+                    name="close"
+                    size={25}
+                    color="#BDBDBD"
+                    style={styles.deleteCross}
+                  />
                 </>
-              )}
-            </View>
+              </View>
+            ) : (
+              <View style={styles.avatar}>
+                <AntDesign
+                  name="pluscircleo"
+                  color="#FF6C00"
+                  size={25}
+                  style={{
+                    ...styles.addCross,
+                    backgroundColor: "#F6F6F6",
+                  }}
+                />
+              </View>
+            )}
           </TouchableOpacity>
           <LogoutBtn
             addStyles={{ position: "absolute", top: 25, right: 16 }}
             // addStyles={{ marginLeft: "auto" }}
-            onPress={() => navigation.navigate("Login")}
+            onPress={() => dispatch(authLogOut())}
           />
-          <Text style={styles.title}>Nataki Romanova</Text>
-
+          <Text style={styles.title}>{nickname}</Text>
           <FlatList
             data={data}
             renderItem={({ item }) => {
-              const { photo, state } = item;
+              const {
+                id,
+                name,
+                location,
+                photo,
+                commentsNumber = 0,
+                likesNumber = 0,
+                coords,
+              } = item;
               return (
                 <Post
                   data={{
+                    name,
+                    location,
                     photo,
-                    state,
+                    commentsNumber,
+                    likesNumber,
+                    coords,
                   }}
                   showComments={() =>
                     navigation.navigate("Comments", {
+                      id,
                       photo,
-                      state,
+                      commentsNumber,
                       prevScreen: "Profile",
                     })
                   }
                   showLocation={() =>
                     navigation.navigate("Map", {
                       photo,
-                      state,
+                      coords,
                       prevScreen: "Profile",
                     })
                   }
                 />
               );
             }}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.id.toString()}
           />
+          <ModalView
+            modalVisible={modalVisible}
+            setModalVisible={setModalVisible}
+            width={200}
+            height={150}
+          >
+            <CreatePicture
+              setPhoto={(photo) => setPhoto(photo)}
+              setModalVisible={setModalVisible}
+              openCamera={openCamera}
+            />
+          </ModalView>
         </Container>
       </ImageBackground>
     </View>

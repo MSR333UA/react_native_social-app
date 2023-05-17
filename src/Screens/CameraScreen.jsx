@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Camera, CameraType } from "expo-camera";
-import * as Location from "expo-location";
+import React, { useState } from "react";
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Camera, CameraType } from "expo-camera";
 
 import GoBackIcon from "../../assets/icons/arrow-left.svg";
 import { Entypo, FontAwesome } from "@expo/vector-icons";
@@ -11,51 +10,13 @@ export const CameraScreen = ({ navigation, route }) => {
   const [photo, setPhoto] = useState(null);
   const [camera, setCamera] = useState(null);
   const [type, setType] = useState(CameraType.back);
-  const [location, setLocation] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
-  const [processingCapture, setProcessingCapture] = useState(false); // new state variable
 
   const { prevScreen } = route.params;
 
   const takePhoto = async () => {
-    if (camera && !processingCapture) {
-      setProcessingCapture(true); // set the state variable to true to indicate capture is in progress
-      const shot = await camera.takePictureAsync({ base64: true });
-      setPhoto(shot.uri);
-      setProcessingCapture(false); // reset the state variable to false when capture is complete
-
-      const location = await Location.getCurrentPositionAsync();
-      console.log("latitude", location.coords.latitude);
-      console.log("longitude", location.coords.longitude);
-    }
-
-    // const shot = await camera.takePictureAsync();
-    // Get the location coordinates
-    // let coords = null;
-    // if (location && location.coords) {
-    //   coords = location.coords;
-    // }
-
-    // Set the photo URI and location coordinates in state
-    // setPhoto(shot.uri);
-    // setLocation(coords);
-
-    // console.log("photo, location", photo, location);
+    const shot = await camera.takePictureAsync();
+    setPhoto(shot.uri);
   };
-
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-
-      console.log("status", status);
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        return;
-      }
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-    })();
-  }, []);
 
   const toggleCameraType = () => {
     setType((current) =>
@@ -68,7 +29,7 @@ export const CameraScreen = ({ navigation, route }) => {
       <View style={styles.topBar}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.navigate("Home")}
+          onPress={() => navigation.goBack()}
         >
           <GoBackIcon />
         </TouchableOpacity>

@@ -1,4 +1,3 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import {
   // Dimensions,
@@ -14,6 +13,10 @@ import {
   Platform,
   Animated,
 } from "react-native";
+import { useDispatch } from "react-redux";
+import { authLogin } from "../../redux/auth/authOperations";
+
+import { Ionicons } from "@expo/vector-icons";
 import { TextBtn } from "../../components/TextBtn";
 
 // const halfWindowsWidth = Dimensions.get("window").width / 2;
@@ -25,22 +28,22 @@ const initialState = {
 
 export const LoginScreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShownKeyboard] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [state, setState] = useState(initialState);
   const [showPassword, setShowPassword] = useState(false);
+
+  const dispatch = useDispatch();
+
   const [formHeight] = useState(new Animated.Value(490));
 
-  const handleSubmit = () => {
-    setIsShownKeyboard(false);
-    Keyboard.dismiss();
-    console.log(state);
+  const handleSubmit = async () => {
+    // console.log(state);
+    setIsLoading(true);
+    await dispatch(authLogin(state));
+    setIsLoading(false);
     setState(initialState);
-    navigation.navigate("Home");
+    // navigation.navigate("Home");
   };
-
-  // const handleKeyboardHide = () => {
-  //   setIsShowKeyboard(false);
-  //   Keyboard.dismiss();
-  // };
 
   const handleKeyboardShow = () => {
     Animated.timing(formHeight, {

@@ -5,25 +5,29 @@ import {
   View,
   TouchableOpacity,
   TouchableWithoutFeedback,
-  Platform,
   TextInput,
   Keyboard,
   ActivityIndicator,
   Image,
   Animated,
 } from "react-native";
+import { useSelector } from "react-redux";
+import * as Location from "expo-location";
+
+import {
+  uploadImageToStorage,
+  uploadPostToDB,
+} from "../../firebase/storageOperations";
+
 import { Header } from "../../components/Header";
+import { Container } from "../../components/Container";
+import { SubmitBtn } from "../../components/SubmitBtn";
+import { CreatePicture } from "../../components/CreatePicture";
+import { ModalView } from "../../components/ModalView";
 
 import GoBackIcon from "../../../assets/icons/arrow-left.svg";
 import MapIcon from "../../../assets/icons/map-pin.svg";
 import CameraIcon from "../../../assets/icons/camera.svg";
-
-import { Container } from "../../components/Container";
-import { KeyboardAvoidingView } from "react-native";
-import { SubmitBtn } from "../../components/SubmitBtn";
-import { Dimensions } from "react-native";
-import { CreatePicture } from "../../components/CreatePicture";
-import { ModalView } from "../../components/ModalView";
 
 const initialState = {
   title: "",
@@ -32,11 +36,15 @@ const initialState = {
 
 export const CreatePostsScreen = ({ navigation, route }) => {
   const [state, setState] = useState(initialState);
-  const [isShownKeyboard, setIsShownKeyboard] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isDisable, setIsDisable] = useState(true);
   const [photo, setPhoto] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [locationPermission, setLocationPermission] = useState(null);
+
+  const { userId, nickname, email, avatarURL } = useSelector(
+    (state) => state.auth
+  );
 
   const marginBottomValue = useRef(new Animated.Value(32)).current; //To raise a keyboard uphill and animate it
 
@@ -52,19 +60,6 @@ export const CreatePostsScreen = ({ navigation, route }) => {
       setIsDisable(false);
     }
   }, [state]);
-
-  const handleSubmit = async () => {
-    if (isDisable) {
-      return;
-    }
-    // console.log(state);
-    setPhoto(null);
-    setIsDisable(true);
-    setState(initialState);
-    setIsDisable(true);
-    navigation.navigate("DefaultScreen", { photo, state });
-    navigation.setParams({ photo: null });
-  };
 
   useEffect(() => {
     //To raise a keyboard uphill and animate it
@@ -93,6 +88,50 @@ export const CreatePostsScreen = ({ navigation, route }) => {
       keyboardDidShowListener.remove();
     };
   }, []);
+
+  useEffect(() => {
+    (async () => {
+      const location = await Location.requestForegroundPermissionsAsync();
+
+      setLocationPermission(location.status === "granted");
+    })();
+  }, []);
+
+  const handleSubmit = async () => {
+    if (isDisable) {
+      return;
+    }
+
+    let coords = null;
+    setIsLoading(true);
+    if (locationPermission) {
+      const location = await Location.getCurrentPositionAsync({});
+      coords = {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      };
+    }
+    const imageURL = await uploadImageToStorage(photo, "postImages");
+    const post = {
+      ...state,
+      photo: imageURL,
+      userId: userId,
+      userAvatar: avatarURL,
+      nickname: nickname,
+      email: email,
+      commentsNumber: 0,
+      likesNumber: 0,
+      coords,
+    };
+    await uploadPostToDB(post);
+    setIsLoading(false);
+    setState(initialState);
+    setPhoto(null);
+    setIsDisable(true);
+    // navigation.navigate("DefaultScreen", { photo, state }); // Перекидає фото з телефона
+    navigation.navigate("DefaultScreen");
+    navigation.setParams({ photo: null });
+  };
 
   const handleKeyboardHide = () => {
     Keyboard.dismiss();

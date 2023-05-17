@@ -1,10 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import MapView, { Marker } from "react-native-maps";
-import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, Image, View, TouchableOpacity } from "react-native";
 import GoBackIcon from "../../../assets/icons/arrow-left.svg";
 import { Header } from "../../components/Header";
 
-export const MapScreen = ({ navigation }) => {
+export const MapScreen = ({ navigation, route }) => {
+  const [showPhoto, setShowPhoto] = useState(true);
+  // console.log("route.params.coords", route.params);
+  const {
+    coords: { latitude, longitude },
+    photo,
+  } = route.params;
   return (
     <View style={styles.container}>
       <Header>
@@ -25,17 +31,19 @@ export const MapScreen = ({ navigation }) => {
       <MapView
         style={styles.map}
         initialRegion={{
-          latitude: 48.58722,
-          longitude: 38.0,
+          latitude,
+          longitude,
           latitudeDelta: 0.1,
           longitudeDelta: 0.1,
         }}
       >
-        <Marker
-          coordinate={{ latitude: 48.58722, longitude: 38.0 }}
-          title="Дохлі москалі 💩"
-        />
+        <Marker coordinate={{ latitude, longitude }} title="your picture 📸" />
       </MapView>
+      {showPhoto && (
+        <TouchableOpacity onPress={() => setShowPhoto(false)}>
+          <Image source={{ uri: photo }} style={styles.image} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -46,6 +54,15 @@ const styles = StyleSheet.create({
   map: {
     width: "100%",
     height: "100%",
+    position: "relative",
+  },
+  image: {
+    position: "absolute",
+    bottom: 500,
+    right: 30,
+    width: 200,
+    height: 150,
+    borderRadius: 20,
   },
   title: {
     marginLeft: "auto",

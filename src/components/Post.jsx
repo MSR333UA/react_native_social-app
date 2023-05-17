@@ -1,6 +1,6 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
-  Dimensions,
+  ActivityIndicator,
   Image,
   StyleSheet,
   Text,
@@ -11,15 +11,39 @@ import {
 import CommentIcon from "../../assets/icons/message-circle.svg";
 import LikeIcon from "../../assets/icons/thumbs-up.svg";
 import MapIcon from "../../assets/icons/map-pin.svg";
+import Toast from "react-native-toast-message";
+import { uploadLikeToDB } from "../firebase/storageOperations";
+import { useSelector } from "react-redux";
 
-export const Post = ({ data, showComments, showLocation }) => {
+export const Post = React.memo(({ data, showComments, showLocation }) => {
   const [isLoading, setIsLoading] = useState(true);
   const {
-    // id,
-    // name, location, photo, commentsNumber, likesNumber,  coords
+    id,
+    title,
+    location,
     photo,
-    state: { location, title },
+    commentsNumber,
+    likesNumber,
+    coords,
+    // userId,
+    // nickname,
+
+    // photo, // Якщо локально
+    // state: { location, title },
   } = data;
+
+  const { userId, nickname } = useSelector((state) => state.auth);
+
+  const checkLocation = () => {
+    if (!coords) {
+      Toast.show({
+        type: "info",
+        text1: "Location not specified",
+      });
+      return;
+    }
+    showLocation();
+  };
 
   return (
     <View
@@ -28,42 +52,73 @@ export const Post = ({ data, showComments, showLocation }) => {
         marginBottom: 32,
       }}
     >
-      <Image
-        source={{ uri: photo }}
-        onLoad={() => setIsLoading(false)}
-        style={styles.image}
-      />
-      <Text style={styles.imgTitle}>{title}</Text>
-      <View
-        style={{
-          ...styles.icons,
-          justifyContent: "space-between",
-        }}
-      >
-        <View style={{ flexDirection: "row" }}>
-          <TouchableOpacity style={styles.icons} onPress={showComments}>
-            <CommentIcon style={{ marginRight: 8, fill: "#FF6C00" }} />
-            <Text style={styles.iconNumber}>3</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              marginLeft: 24,
-              ...styles.icons,
-            }}
-            // onPress={() => uploadLikeToDB(id, userId, nickname, likesNumber)}
-          >
-            <LikeIcon style={{ marginRight: 8, stroke: "#FF6C00" }} />
-            <Text style={styles.iconNumber}>30</Text>
+      {isLoading && <ActivityIndicator size={"small"} color={"#FF6C00"} />}
+      <>
+        <Image
+          source={{ uri: photo }}
+          onLoad={() => setIsLoading(false)}
+          style={styles.image}
+        />
+        <Text style={styles.imgTitle}>{title}</Text>
+        <View
+          style={{
+            ...styles.icons,
+            justifyContent: "space-between",
+          }}
+        >
+          <View style={{ flexDirection: "row" }}>
+            <TouchableOpacity style={styles.icons} onPress={showComments}>
+              <CommentIcon
+                style={
+                  commentsNumber > 0
+                    ? { marginRight: 8, fill: "#FF6C00" }
+                    : { marginRight: 8, stroke: "#BDBDBD" }
+                }
+              />
+              <Text
+                style={
+                  commentsNumber > 0
+                    ? { color: "#212121" }
+                    : { ...styles.iconNumber }
+                }
+              >
+                {commentsNumber}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                marginLeft: 24,
+                ...styles.icons,
+              }}
+              onPress={() => uploadLikeToDB(id, userId, nickname, likesNumber)}
+            >
+              <LikeIcon
+                style={
+                  likesNumber > 0
+                    ? { marginRight: 8, stroke: "#FF6C00" }
+                    : { marginRight: 8, stroke: "#BDBDBD" }
+                }
+              />
+              <Text
+                style={
+                  likesNumber > 0
+                    ? { color: "#212121" }
+                    : { ...styles.iconNumber }
+                }
+              >
+                {likesNumber}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity style={styles.icons} onPress={checkLocation}>
+            <MapIcon style={{ marginRight: 8 }} />
+            <Text style={styles.locationText}>{location}</Text>
           </TouchableOpacity>
         </View>
-        <TouchableOpacity style={styles.icons} onPress={showLocation}>
-          <MapIcon style={{ marginRight: 8 }} />
-          <Text style={styles.locationText}>{location}</Text>
-        </TouchableOpacity>
-      </View>
+      </>
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   image: {

@@ -1,7 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import "react-native-gesture-handler";
+import { Provider } from "react-redux";
 import { NavigationContainer } from "@react-navigation/native";
 import * as SplashScreen from "expo-splash-screen";
+import Toast from "react-native-toast-message";
+import toastConfig from "./helpers/toastConfig";
+
+import { store } from "./src/redux/store";
 import { loadFonts } from "./src/Fonts/Fonts";
 import { Main } from "./src/components/Main";
 
@@ -35,8 +39,11 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Main onLayoutRootView={onLayoutRootView} />
-    </NavigationContainer>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Main onLayoutRootView={onLayoutRootView} />
+        <Toast topOffset={60} config={toastConfig} />
+      </NavigationContainer>
+    </Provider>
   );
 }

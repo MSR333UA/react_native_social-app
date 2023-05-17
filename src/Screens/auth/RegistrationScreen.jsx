@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { AntDesign, Ionicons, SimpleLineIcons } from "@expo/vector-icons";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,11 +12,19 @@ import {
   ImageBackground,
   Image,
   Dimensions,
-  Button,
 } from "react-native";
-import { TextBtn } from "../../components/TextBtn";
-import CrossIcon from "../../../assets/icons/delete-cross.svg";
 import { Animated } from "react-native";
+import { useDispatch } from "react-redux";
+
+import { authRegister } from "../../redux/auth/authOperations";
+import { uploadImageToStorage } from "../../firebase/storageOperations";
+
+import { ModalView } from "../../components/ModalView";
+import { CreatePicture } from "../../components/CreatePicture";
+import { TextBtn } from "../../components/TextBtn";
+
+import { AntDesign, Ionicons } from "@expo/vector-icons";
+import CrossIcon from "../../../assets/icons/delete-cross.svg";
 
 const halfWindowsWidth = Dimensions.get("window").width / 2;
 
@@ -27,22 +34,24 @@ const initialState = {
   password: "",
 };
 
-export const RegistrationScreen = ({ navigation }) => {
-  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+export const RegistrationScreen = ({ navigation, route }) => {
   const [state, setState] = useState(initialState);
-  const [showPassword, setShowPassword] = useState(false);
   const [photo, setPhoto] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const dispatch = useDispatch();
+
   const [formHeight] = useState(new Animated.Value(490));
+
+  useEffect(() => {
+    if (route.params) {
+      setPhoto(route.params.photo);
+    }
+  }, [route]);
   // console.log(navigation);
-
-  // const handleKeyboardHide = () => {
-  //   setIsShowKeyboard(false);
-  //   Keyboard.dismiss();
-  // };
-
-  // const {
-  //   params: { userId },
-  // } = useRoute(); // Приймання параметрів
 
   const handleKeyboardShow = () => {
     Animated.timing(formHeight, {
@@ -62,12 +71,28 @@ export const RegistrationScreen = ({ navigation }) => {
       Keyboard.dismiss();
     });
   };
-  const handleSubmit = () => {
-    setIsShowKeyboard(false);
-    Keyboard.dismiss();
-    console.log(state);
+  const handleSubmit = async () => {
+    setIsLoading(true);
+    if (!photo) {
+      await dispatch(authRegister(state));
+      setIsLoading(false);
+      setState(initialState);
+      return;
+    }
+    const imageURL = await uploadImageToStorage(
+      photo,
+      "usersAvatars",
+      state.email
+    );
+    await dispatch(authRegister({ ...state, imageURL }));
+    setIsLoading(false);
     setState(initialState);
     navigation.navigate("Home");
+  };
+
+  const openCamera = () => {
+    setModalVisible(false);
+    navigation.navigate("Camera", { prevScreen: "Register" });
   };
   return (
     <TouchableWithoutFeedback onPress={handleKeyboardHide}>
@@ -93,21 +118,22 @@ export const RegistrationScreen = ({ navigation }) => {
             <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
             >
-              <TouchableOpacity>
-                <View style={styles.avatar}>
-                  {photo ? (
-                    <>
-                      <Image
-                        source={require("../../../assets/images/avatar.png")}
-                      />
-                      <CrossIcon
-                        name="close"
-                        size={25}
-                        color="#BDBDBD"
-                        style={styles.deleteCross}
-                      />
-                    </>
-                  ) : (
+              <TouchableOpacity onPress={() => setModalVisible(true)}>
+                {photo ? (
+                  <View style={styles.avatar}>
+                    <Image
+                      style={{ height: 120, borderRadius: 16 }}
+                      source={{ uri: photo }}
+                    />
+                    <CrossIcon
+                      name="close"
+                      size={25}
+                      color="#BDBDBD"
+                      style={styles.deleteCross}
+                    />
+                  </View>
+                ) : (
+                  <View style={styles.avatar}>
                     <AntDesign
                       name="pluscircleo"
                       color="#FF6C00"
@@ -117,8 +143,8 @@ export const RegistrationScreen = ({ navigation }) => {
                         backgroundColor: "#F6F6F6",
                       }}
                     />
-                  )}
-                </View>
+                  </View>
+                )}
               </TouchableOpacity>
 
               <Text style={styles.title}>Registration</Text>
@@ -212,6 +238,18 @@ export const RegistrationScreen = ({ navigation }) => {
             )}
           </Animated.View>
         </ImageBackground>
+        <ModalView
+          modalVisible={modalVisible}
+          setModalVisible={setModalVisible}
+          width={200}
+          height={150}
+        >
+          <CreatePicture
+            setPhoto={(photo) => setPhoto(photo)}
+            setModalVisible={setModalVisible}
+            openCamera={openCamera}
+          />
+        </ModalView>
       </View>
     </TouchableWithoutFeedback>
   );

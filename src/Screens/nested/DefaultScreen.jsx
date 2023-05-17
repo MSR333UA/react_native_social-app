@@ -1,4 +1,4 @@
-import { Keyboard, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
 import { LogoutBtn } from "../../components/LogoutBtn";
 import { Header } from "../../components/Header";
@@ -7,17 +7,25 @@ import { Container } from "../../components/Container";
 import { Post } from "../../components/Post";
 import { useEffect, useState } from "react";
 import { FlatList } from "react-native";
+import { useDispatch } from "react-redux";
+import { authLogOut } from "../../redux/auth/authOperations";
 
-export const DefaultScreen = ({ navigation, route }) => {
+import { getAllPosts } from "../../firebase/storageOperations";
+
+export const DefaultScreen = ({ navigation }) => {
   const [data, setData] = useState([]);
-  // const { photo, state } = route.params;
+  const dispatch = useDispatch();
+  // console.log("data", data);
 
   useEffect(() => {
-    if (route.params) {
-      setData((prevState) => [route.params, ...prevState]);
-    }
-  }, [route.params]);
-  // console.log("data", data);
+    //Отримання інформації з бази данних
+    getAllPosts(setData);
+  }, []);
+  // useEffect(() => { //Отримання інформації з телефона
+  //   if (route.params) {
+  //     setData((prevState) => [route.params, ...prevState]);
+  //   }
+  // }, [route.params]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -25,53 +33,61 @@ export const DefaultScreen = ({ navigation, route }) => {
         <Text style={styles.title}>Publications</Text>
         <LogoutBtn
           addStyles={{ position: "absolute", top: 55, right: 16 }}
-          onPress={() => navigation.navigate("Login")}
+          onPress={() => dispatch(authLogOut())}
         />
       </Header>
       <Container addStyles={{ flex: 1 }}>
-        <View style={styles.wrap}>
-          <UserInfo />
-        </View>
         <FlatList
           data={data}
           renderItem={({ item }) => {
-            // const {
-            //   id,
-            //   nickname,
-            //   email,
-            //   name,
-            //   location,
-            //   photo,
-            //   userAvatar,
-            //   commentsNumber = 0,
-            //   likesNumber = 0,
-            //   coords,
-            // } = item;
-            const { photo, state } = item;
+            const {
+              id,
+              nickname,
+              title,
+              location,
+              photo,
+              userId,
+              commentsNumber = 0,
+              likesNumber = 0,
+              coords,
+              userAvatar,
+              email,
+            } = item;
+            // const { photo, state } = item;
             return (
               <View style={styles.post}>
+                <View style={styles.wrap}>
+                  <UserInfo
+                    userAvatar={userAvatar}
+                    nickname={nickname}
+                    email={email}
+                  />
+                </View>
                 <Post
-                  // data={{
-                  //   id,
-                  //   name,
-                  //   location,
-                  //   photo,
-                  //   commentsNumber,
-                  //   likesNumber,
-                  //   coords,
-                  // }}
-                  data={{ photo, state }}
+                  data={{
+                    id,
+                    title,
+                    location,
+                    photo,
+                    commentsNumber,
+                    likesNumber,
+                    coords,
+                    userId,
+                    nickname,
+                  }}
+                  // data={{ photo, state }} //передавання інформації локально
                   showComments={() =>
                     navigation.navigate("Comments", {
+                      id,
                       photo,
-
+                      commentsNumber,
                       prevScreen: "DefaultScreen",
                     })
                   }
                   showLocation={() =>
                     navigation.navigate("Map", {
                       photo,
-                      // coords,
+                      coords,
                       prevScreen: "DefaultScreen",
                     })
                   }
@@ -79,7 +95,7 @@ export const DefaultScreen = ({ navigation, route }) => {
               </View>
             );
           }}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
         />
       </Container>
     </View>
