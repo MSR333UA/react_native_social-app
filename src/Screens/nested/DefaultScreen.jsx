@@ -38,6 +38,7 @@ export const DefaultScreen = ({ navigation }) => {
       </Header>
       <Container addStyles={{ flex: 1 }}>
         <FlatList
+          style={{ paddingTop: 32 }}
           data={data}
           renderItem={({ item }) => {
             const {

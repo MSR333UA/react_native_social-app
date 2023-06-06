@@ -35,7 +35,7 @@ export const CommentsScreen = ({ navigation, route }) => {
   const [isShownKeyboard, setIsShownKeyboard] = useState(false);
 
   const inputRef = useRef(null);
-  const inputHeight = useRef(new Animated.Value(90)).current;
+  const inputHeight = useRef(new Animated.Value(0)).current;
 
   const { userId, nickname, avatarURL } = useSelector((state) => state.auth);
   const { id, photo, commentsNumber, prevScreen } = route.params;
@@ -76,7 +76,7 @@ export const CommentsScreen = ({ navigation, route }) => {
 
   const handleBlur = () => {
     Animated.timing(inputHeight, {
-      toValue: 40,
+      toValue: 0,
       duration: 500,
       useNativeDriver: false,
     }).start();
@@ -115,79 +115,78 @@ export const CommentsScreen = ({ navigation, route }) => {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={handleKeyboardHide}>
-      <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-        <Header>
-          <Text style={styles.title}>Comments</Text>
-          <TouchableOpacity
-            style={{
-              position: "absolute",
-              left: 11,
-              top: 50,
-              padding: 5,
-            }}
-            onPress={() => navigation.navigate(prevScreen)}
-          >
-            <GoBackIcon />
-          </TouchableOpacity>
-        </Header>
-        <Container addStyles={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
+      <TouchableWithoutFeedback onPress={handleKeyboardHide}>
+        <View>
+          <Header>
+            <Text style={styles.title}>Comments</Text>
+            <TouchableOpacity
+              style={{
+                position: "absolute",
+                left: 11,
+                top: 50,
+                padding: 5,
+              }}
+              onPress={() => navigation.navigate(prevScreen)}
+            >
+              <GoBackIcon />
+            </TouchableOpacity>
+          </Header>
           <Image source={{ uri: photo }} style={styles.image} />
-          {comments && (
-            <FlatList
-              data={comments}
-              renderItem={({ item, index }) => {
-                return (
-                  <Comments
-                    index={index}
-                    item={item}
-                    commentsLength={comments.length}
-                    StoredUserId={userId}
-                  />
-                );
-              }}
-              keyExtractor={(item) => item.id.toString()}
-            />
-          )}
-        </Container>
-        <View
-          style={{
-            position: "absolute",
-            bottom: isShownKeyboard ? keyboardHeight - 60 : 8,
-            left: 16,
-            marginBottom: 16,
-          }}
-        >
-          <Animated.View style={{ height: inputHeight }}>
-            <TextInput
-              placeholder="Comment on..."
-              value={userComment}
-              onChangeText={setUserComment}
-              maxLength={150}
-              style={[
-                styles.input,
-                isShownKeyboard && styles.animatedInputFocus,
-              ]}
-              onFocus={() => {
-                setIsShownKeyboard(true);
-                handleFocus();
-              }}
-              onBlur={() => {
-                setIsShownKeyboard(false);
-                handleBlur();
-              }}
-              ref={inputRef}
-            />
-          </Animated.View>
-          <TouchableOpacity
-            onPress={() => handleSubmit()}
-            style={styles.inputButton}
-          >
-            <SendIcon />
-          </TouchableOpacity>
         </View>
+      </TouchableWithoutFeedback>
+      <Container addStyles={{ flex: 1 }}>
+        {comments && (
+          <FlatList
+            data={comments}
+            renderItem={({ item, index }) => {
+              return (
+                <Comments
+                  index={index}
+                  item={item}
+                  commentsLength={comments.length}
+                  StoredUserId={userId}
+                />
+              );
+            }}
+            keyExtractor={(item) => item.id.toString()}
+          />
+        )}
+      </Container>
+      <View
+        style={{
+          position: "absolute",
+          bottom: isShownKeyboard ? keyboardHeight - 45 : 70,
+          left: 16,
+          // marginBottom: 16,
+        }}
+      >
+        <Animated.View style={{ height: inputHeight }}>
+          <TextInput
+            placeholder="Comment on..."
+            value={userComment}
+            onChangeText={setUserComment}
+            maxLength={150}
+            style={[styles.input, isShownKeyboard && styles.animatedInputFocus]}
+            onFocus={() => {
+              setIsShownKeyboard(true);
+              handleFocus();
+            }}
+            onBlur={() => {
+              setIsShownKeyboard(false);
+              handleBlur();
+            }}
+            ref={inputRef}
+          />
+        </Animated.View>
+        <TouchableOpacity
+          onPress={() => handleSubmit()}
+          style={styles.inputButton}
+        >
+          <SendIcon />
+        </TouchableOpacity>
       </View>
-    </TouchableWithoutFeedback>
+    </View>
   );
 };
 
@@ -196,37 +195,36 @@ const styles = StyleSheet.create({
     marginLeft: "auto",
     marginRight: "auto",
     fontFamily: "RobotoMedium",
-    lineHeight: 35,
+    // lineHeight: 35,
     color: "#212121",
     fontSize: 17,
-    lineHeight: 22,
+    // lineHeight: 22,
   },
   image: {
     height: 240,
     // width: "100%",
-    backgroundColor: "#F6F6F6",
+    // backgroundColor: "#F6F6F6",
     borderRadius: 8,
     marginBottom: 32,
   },
   input: {
     padding: 16,
-    paddingTop: 16,
+    marginLeft: "auto",
+    marginRight: "auto",
     alignItems: "center",
     width: windowsWidth - 32,
     minHeight: 50,
-    paddingRight: 50,
+    // paddingRight: 50,
     fontFamily: "RobotoRegular",
     fontStyle: "normal",
     fontSize: 16,
-    lineHeight: 19,
+    // lineHeight: 19,
     color: "#212121",
     backgroundColor: "#F6F6F6",
     borderRadius: 100,
     borderWidth: 1,
     borderStyle: "solid",
     borderColor: "#E8E8E8",
-
-    marginBottom: 16,
   },
 
   inputButton: {

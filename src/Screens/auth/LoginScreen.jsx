@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
-  // Dimensions,
+  Dimensions,
   ImageBackground,
   Keyboard,
   KeyboardAvoidingView,
@@ -19,7 +19,7 @@ import { authLogin } from "../../redux/auth/authOperations";
 import { Ionicons } from "@expo/vector-icons";
 import { TextBtn } from "../../components/TextBtn";
 
-// const halfWindowsWidth = Dimensions.get("window").width / 2;
+const windowsWidth = Dimensions.get("window").width;
 
 const initialState = {
   email: "",
@@ -30,11 +30,59 @@ export const LoginScreen = ({ navigation }) => {
   const [isShowKeyboard, setIsShownKeyboard] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [state, setState] = useState(initialState);
+  const [showInput, setShowInput] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  const inputRef = useRef(null);
+  const inputHeight = useRef(new Animated.Value(490)).current;
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+        setIsShownKeyboard(true); // or some other action
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setIsShownKeyboard(false); // or some other action
+      }
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
+  const handleKeyboardHide = () => {
+    setIsShownKeyboard(false);
+    Keyboard.dismiss();
+  };
+
+  const handleFocus = () => {
+    Animated.timing(inputHeight, {
+      toValue: 550,
+      duration: 500,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const handleBlur = () => {
+    Animated.timing(inputHeight, {
+      toValue: 490,
+      duration: 500,
+      useNativeDriver: false,
+    }).start(() => {
+      setIsShownKeyboard(false);
+      Keyboard.dismiss();
+    });
+  };
 
   const dispatch = useDispatch();
-
-  const [formHeight] = useState(new Animated.Value(490));
 
   const handleSubmit = async () => {
     // console.log(state);
@@ -45,25 +93,6 @@ export const LoginScreen = ({ navigation }) => {
     // navigation.navigate("Home");
   };
 
-  const handleKeyboardShow = () => {
-    Animated.timing(formHeight, {
-      toValue: 550,
-      duration: 500,
-      useNativeDriver: false,
-    }).start();
-  };
-
-  const handleKeyboardHide = () => {
-    Animated.timing(formHeight, {
-      toValue: 490,
-      duration: 500,
-      useNativeDriver: false,
-    }).start(() => {
-      setIsShownKeyboard(false);
-      Keyboard.dismiss();
-    });
-  };
-
   return (
     <TouchableWithoutFeedback onPress={handleKeyboardHide}>
       <View style={styles.container}>
@@ -71,77 +100,83 @@ export const LoginScreen = ({ navigation }) => {
           style={styles.bgImage}
           source={require("../../../assets/images/imgBg.png")}
         >
+          {/* <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "padding"} 
+          > */}
+          {/* <View
+              style={{
+                // position: "absolute",
+                bottom: isShowKeyboard ? keyboardHeight - 300 : 0,
+              }}
+            > */}
           <Animated.View
             style={{
               ...styles.bgForm,
-              height: formHeight,
-              // ...Platform.select({
-              //   // android: {
-              //   //   height: isShowKeyboard ? 490 : 550,
-              //   // },
-              //   ios: {
-              //     height: isShowKeyboard ? 550 : 550,
-              //   },
-              // }),
+              height: inputHeight,
             }}
           >
-            <KeyboardAvoidingView
-              behavior={Platform.OS === "ios" ? "padding" : "height"}
+            <Text style={styles.title}>Login</Text>
+            <TextInput
+              style={[
+                styles.inputText,
+                showInput === "email" && styles.InputFocus,
+              ]}
+              onFocus={() => {
+                setIsShownKeyboard(true);
+                handleFocus();
+                setShowInput("email");
+              }}
+              onBlur={() => {
+                setIsShownKeyboard(false);
+                setShowInput(false);
+                handleBlur();
+              }}
+              ref={inputRef}
+              placeholder="Email address"
+              value={state.email}
+              onChangeText={(value) =>
+                setState((prevState) => ({ ...prevState, email: value }))
+              }
+            />
+            <View
+              style={[
+                styles.passwordContainer,
+                showInput === "password" && styles.InputFocus,
+              ]}
             >
-              <Text style={styles.title}>Login</Text>
               <TextInput
-                style={[
-                  styles.inputText,
-                  isShowKeyboard === "email" && styles.InputFocus,
-                ]}
+                style={styles.passwordInput}
+                secureTextEntry={!showPassword}
                 onFocus={() => {
-                  setIsShownKeyboard("email");
-                  handleKeyboardShow();
+                  setIsShownKeyboard(true);
+                  handleFocus();
+                  setShowInput("password");
                 }}
                 onBlur={() => {
                   setIsShownKeyboard(false);
-                  Keyboard.dismiss();
+                  handleBlur();
+                  setShowInput(false);
                 }}
-                placeholder="Email address"
-                value={state.email}
+                ref={inputRef}
+                placeholder="Password"
+                value={state.password}
                 onChangeText={(value) =>
-                  setState((prevState) => ({ ...prevState, email: value }))
+                  setState((prevState) => ({
+                    ...prevState,
+                    password: value,
+                  }))
                 }
               />
-              <View
-                style={[
-                  styles.passwordContainer,
-                  isShowKeyboard === "password" && styles.InputFocus,
-                ]}
+              <TouchableOpacity
+                activeOpacity={0.5}
+                onPress={() => setShowPassword(!showPassword)}
               >
-                <TextInput
-                  style={styles.passwordInput}
-                  secureTextEntry={!showPassword}
-                  onFocus={() => {
-                    setIsShownKeyboard("password");
-                    handleKeyboardShow();
-                  }}
-                  onBlur={() => {
-                    setIsShownKeyboard(false);
-                    Keyboard.dismiss();
-                  }}
-                  placeholder="Password"
-                  value={state.password}
-                  onChangeText={(value) =>
-                    setState((prevState) => ({ ...prevState, password: value }))
-                  }
+                <Ionicons
+                  style={styles.eyeButton}
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
                 />
-                <TouchableOpacity
-                  activeOpacity={0.5}
-                  onPress={() => setShowPassword(!showPassword)}
-                >
-                  <Ionicons
-                    style={styles.eyeButton}
-                    name={showPassword ? "eye-off-outline" : "eye-outline"}
-                  />
-                </TouchableOpacity>
-              </View>
-            </KeyboardAvoidingView>
+              </TouchableOpacity>
+            </View>
 
             {!isShowKeyboard && (
               <>
@@ -164,6 +199,8 @@ export const LoginScreen = ({ navigation }) => {
               </>
             )}
           </Animated.View>
+          {/* </View> */}
+          {/* </KeyboardAvoidingView> */}
         </ImageBackground>
       </View>
     </TouchableWithoutFeedback>
@@ -199,7 +236,6 @@ const styles = StyleSheet.create({
 
     fontFamily: "RobotoMedium",
     fontStyle: "normal",
-    // fontWeight: "500",
     fontSize: 30,
     lineHeight: 35,
     textAlign: "center",
@@ -222,6 +258,8 @@ const styles = StyleSheet.create({
     fontStyle: "normal",
     fontSize: 16,
     lineHeight: 19,
+
+    width: windowsWidth - 32,
   },
   passwordContainer: {
     flexDirection: "row",

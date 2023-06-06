@@ -8,6 +8,5 @@ const styles = StyleSheet.create({
   bg: {
     backgroundColor: "#ffffff",
     paddingHorizontal: 16,
-    paddingVertical: 32,
   },
 });

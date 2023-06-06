@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -25,8 +25,7 @@ import { TextBtn } from "../../components/TextBtn";
 
 import { AntDesign, Ionicons } from "@expo/vector-icons";
 import CrossIcon from "../../../assets/icons/delete-cross.svg";
-
-const halfWindowsWidth = Dimensions.get("window").width / 2;
+const windowsWidth = Dimensions.get("window").width;
 
 const initialState = {
   login: "",
@@ -38,13 +37,16 @@ export const RegistrationScreen = ({ navigation, route }) => {
   const [state, setState] = useState(initialState);
   const [photo, setPhoto] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isShowKeyboard, setIsShowKeyboard] = useState(false);
+  const [isShowKeyboard, setIsShownKeyboard] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [showInput, setShowInput] = useState(false);
 
   const dispatch = useDispatch();
 
-  const [formHeight] = useState(new Animated.Value(490));
+  const inputRef = useRef(null);
+  const inputHeight = useRef(new Animated.Value(550)).current;
 
   useEffect(() => {
     if (route.params) {
@@ -53,21 +55,47 @@ export const RegistrationScreen = ({ navigation, route }) => {
   }, [route]);
   // console.log(navigation);
 
-  const handleKeyboardShow = () => {
-    Animated.timing(formHeight, {
-      toValue: 670,
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      (e) => {
+        setKeyboardHeight(e.endCoordinates.height);
+        setIsShownKeyboard(true); // or some other action
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setIsShownKeyboard(false); // or some other action
+      }
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
+
+  const handleKeyboardHide = () => {
+    setIsShownKeyboard(false);
+    Keyboard.dismiss();
+  };
+
+  const handleFocus = () => {
+    Animated.timing(inputHeight, {
+      toValue: 655,
       duration: 500,
       useNativeDriver: false,
     }).start();
   };
 
-  const handleKeyboardHide = () => {
-    Animated.timing(formHeight, {
+  const handleBlur = () => {
+    Animated.timing(inputHeight, {
       toValue: 550,
       duration: 500,
       useNativeDriver: false,
     }).start(() => {
-      setIsShowKeyboard(false);
+      setIsShownKeyboard(false);
       Keyboard.dismiss();
     });
   };
@@ -101,22 +129,15 @@ export const RegistrationScreen = ({ navigation, route }) => {
           style={styles.bgImage}
           source={require("../../../assets/images/imgBg.png")}
         >
-          <Animated.View
-            style={{
-              ...styles.bgForm,
-              height: formHeight,
-              // ...Platform.select({
-              //   // android: {
-              //   //   height: isShowKeyboard ? 390 : 550,
-              //   // },
-              //   ios: {
-              //     height: isShowKeyboard ? 670 : 550,
-              //   },
-              // }),
-            }}
-          >
-            <KeyboardAvoidingView
+          <View>
+            {/* <KeyboardAvoidingView
               behavior={Platform.OS === "ios" ? "padding" : "height"}
+            > */}
+            <Animated.View
+              style={{
+                ...styles.bgForm,
+                height: inputHeight,
+              }}
             >
               <TouchableOpacity onPress={() => setModalVisible(true)}>
                 {photo ? (
@@ -151,13 +172,19 @@ export const RegistrationScreen = ({ navigation, route }) => {
               <TextInput
                 style={[
                   styles.inputText,
-                  isShowKeyboard === "login" && styles.InputFocus,
+                  showInput === "login" && styles.InputFocus,
                 ]}
                 onFocus={() => {
-                  setIsShowKeyboard("login");
-                  handleKeyboardShow();
+                  setIsShownKeyboard(true);
+                  handleFocus();
+                  setShowInput("login");
                 }}
-                onBlur={() => setIsShowKeyboard(false)}
+                onBlur={() => {
+                  setIsShownKeyboard(false);
+                  handleBlur();
+                  setShowInput(false);
+                }}
+                ref={inputRef}
                 placeholder="Login"
                 value={state.login}
                 onChangeText={(value) =>
@@ -167,16 +194,19 @@ export const RegistrationScreen = ({ navigation, route }) => {
               <TextInput
                 style={[
                   styles.inputText,
-                  isShowKeyboard === "email" && styles.InputFocus,
+                  showInput === "email" && styles.InputFocus,
                 ]}
                 onFocus={() => {
-                  setIsShowKeyboard("email");
-                  handleKeyboardShow();
+                  setIsShownKeyboard(true);
+                  handleFocus();
+                  setShowInput("email");
                 }}
                 onBlur={() => {
-                  setIsShowKeyboard(false);
-                  Keyboard.dismiss();
+                  setIsShownKeyboard(false);
+                  setShowInput(false);
+                  handleBlur();
                 }}
+                ref={inputRef}
                 placeholder="Email address"
                 autoComplete="email"
                 value={state.email}
@@ -187,21 +217,30 @@ export const RegistrationScreen = ({ navigation, route }) => {
               <View
                 style={[
                   styles.passwordContainer,
-                  isShowKeyboard === "password" && styles.InputFocus,
+                  showInput === "password" && styles.InputFocus,
                 ]}
               >
                 <TextInput
                   style={styles.passwordInput}
                   secureTextEntry={!showPassword}
                   onFocus={() => {
-                    setIsShowKeyboard("password");
-                    handleKeyboardShow();
+                    setIsShownKeyboard(true);
+                    handleFocus();
+                    setShowInput("password");
                   }}
-                  onBlur={() => setIsShowKeyboard(false)}
+                  onBlur={() => {
+                    setIsShownKeyboard(false);
+                    handleBlur();
+                    setShowInput(false);
+                  }}
+                  ref={inputRef}
                   placeholder="Password"
                   value={state.password}
                   onChangeText={(value) =>
-                    setState((prevState) => ({ ...prevState, password: value }))
+                    setState((prevState) => ({
+                      ...prevState,
+                      password: value,
+                    }))
                   }
                 />
                 <TouchableOpacity
@@ -214,29 +253,31 @@ export const RegistrationScreen = ({ navigation, route }) => {
                   />
                 </TouchableOpacity>
               </View>
-            </KeyboardAvoidingView>
 
-            {!isShowKeyboard && (
-              <>
-                <TouchableOpacity
-                  activeOpacity={0.5}
-                  style={styles.buttonContainer}
-                  onPress={handleSubmit}
-                >
-                  <Text style={styles.buttonText}>Sign Up</Text>
-                </TouchableOpacity>
-                <TextBtn
-                  handlePress={() => navigation.navigate("Login")}
-                  text={"Already have an account?"}
-                  textTab={"Sing In"}
-                  position={{
-                    alignItems: "center",
-                    marginBottom: 78,
-                  }}
-                />
-              </>
-            )}
-          </Animated.View>
+              {!isShowKeyboard && (
+                <>
+                  <TouchableOpacity
+                    activeOpacity={0.5}
+                    style={styles.buttonContainer}
+                    onPress={handleSubmit}
+                  >
+                    <Text style={styles.buttonText}>Sign Up</Text>
+                  </TouchableOpacity>
+                  <TextBtn
+                    style={{ paddingBottom: 78 }}
+                    handlePress={() => navigation.navigate("Login")}
+                    text={"Already have an account?"}
+                    textTab={"Sing In"}
+                    position={{
+                      alignItems: "center",
+                      // marginBottom: 78,
+                    }}
+                  />
+                </>
+              )}
+            </Animated.View>
+            {/* </KeyboardAvoidingView> */}
+          </View>
         </ImageBackground>
         <ModalView
           modalVisible={modalVisible}
@@ -274,7 +315,7 @@ const styles = StyleSheet.create({
     width: 120,
     height: 120,
     top: -60,
-    left: halfWindowsWidth - 75,
+    left: windowsWidth - 280,
     backgroundColor: "#F6F6F6",
     borderRadius: 16,
   },
@@ -349,6 +390,8 @@ const styles = StyleSheet.create({
     fontStyle: "normal",
     fontSize: 16,
     lineHeight: 19,
+
+    width: windowsWidth - 32,
   },
   InputFocus: {
     borderColor: "#FF6C00",
